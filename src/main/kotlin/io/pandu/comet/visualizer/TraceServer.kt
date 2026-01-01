@@ -225,6 +225,7 @@ val HTML_PAGE = """
             border-radius: 6px;
             border-left: 3px solid transparent;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
         [data-theme="light"] .node-row { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .node-row:hover { background: var(--bg-card-hover); }
@@ -290,6 +291,11 @@ val HTML_PAGE = """
             padding: 8px 0;
             border-bottom: 1px solid var(--border-color);
             animation: fadeIn 0.3s ease;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .timeline-item:hover {
+            background: var(--bg-card-hover);
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
@@ -541,6 +547,74 @@ val HTML_PAGE = """
             justify-content: space-between;
             align-items: center;
         }
+
+        .tree-tooltip {
+            position: fixed;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            max-width: 300px;
+        }
+        .tree-tooltip.visible { opacity: 1; }
+        .tree-tooltip-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tree-tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 4px;
+            color: var(--text-secondary);
+        }
+        .tree-tooltip-row span:last-child {
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--text-primary);
+        }
+
+        .timeline-tooltip {
+            position: fixed;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            max-width: 300px;
+        }
+        .timeline-tooltip.visible { opacity: 1; }
+        .timeline-tooltip-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .timeline-tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 4px;
+            color: var(--text-secondary);
+        }
+        .timeline-tooltip-row span:last-child {
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
@@ -588,6 +662,7 @@ val HTML_PAGE = """
                     <div>Waiting for traces...</div>
                 </div>
             </div>
+            <div class="tree-tooltip" id="tree-tooltip"></div>
             <div class="gantt-container" id="gantt">
                 <div class="gantt-scale-info">
                     <span id="gantt-range">Timeline: 0ms - 0ms</span>
@@ -611,6 +686,7 @@ val HTML_PAGE = """
         <div class="timeline-panel">
             <div class="timeline-header">Event Timeline</div>
             <div id="timeline"></div>
+            <div class="timeline-tooltip" id="timeline-tooltip"></div>
         </div>
     </div>
     <script>
@@ -805,6 +881,13 @@ val HTML_PAGE = """
             div.className = 'tree-node';
             div.dataset.id = node.id;
             div.innerHTML = '<div class="node-row ' + node.status + '"><span class="status-icon ' + node.status + '">' + getIcon(node.status) + '</span><span class="operation">' + node.operation + '</span><div class="meta"><span class="duration">' + (node.durationMs > 0 ? node.durationMs.toFixed(1) + 'ms' : '...') + '</span><span class="dispatcher">' + node.dispatcher + '</span></div></div><div class="children"></div>';
+
+            // Add tooltip event listeners to node-row
+            const row = div.querySelector('.node-row');
+            row.addEventListener('mouseenter', (e) => showTreeTooltip(e, node));
+            row.addEventListener('mousemove', moveTreeTooltip);
+            row.addEventListener('mouseleave', hideTreeTooltip);
+
             return div;
         }
 
@@ -816,6 +899,40 @@ val HTML_PAGE = """
             row.querySelector('.duration').textContent = node.durationMs > 0 ? node.durationMs.toFixed(1) + 'ms' : '...';
         }
 
+        function showTreeTooltip(e, node) {
+            const tooltip = document.getElementById('tree-tooltip');
+            const statusLabel = { running: 'Running', completed: 'Completed', failed: 'Failed', cancelled: 'Cancelled' }[node.status] || node.status;
+
+            let html = '<div class="tree-tooltip-title"><span class="status-icon ' + node.status + '" style="width:14px;height:14px;font-size:8px">' + getIcon(node.status) + '</span>' + node.operation + '</div>';
+            html += '<div class="tree-tooltip-row"><span>Status</span><span>' + statusLabel + '</span></div>';
+            html += '<div class="tree-tooltip-row"><span>Duration</span><span>' + (node.durationMs > 0 ? node.durationMs.toFixed(1) + 'ms' : 'running...') + '</span></div>';
+            html += '<div class="tree-tooltip-row"><span>Start</span><span>+' + node.startMs.toFixed(1) + 'ms</span></div>';
+            html += '<div class="tree-tooltip-row"><span>Dispatcher</span><span>' + node.dispatcher + '</span></div>';
+            if (node.id) {
+                html += '<div class="tree-tooltip-row"><span>Span ID</span><span style="font-size:0.7rem">' + node.id.substring(0, 16) + '...</span></div>';
+            }
+            if (node.parentId) {
+                html += '<div class="tree-tooltip-row"><span>Parent ID</span><span style="font-size:0.7rem">' + node.parentId.substring(0, 16) + '...</span></div>';
+            }
+
+            tooltip.innerHTML = html;
+            tooltip.classList.add('visible');
+            moveTreeTooltip(e);
+        }
+
+        function moveTreeTooltip(e) {
+            const tooltip = document.getElementById('tree-tooltip');
+            const x = e.clientX + 12;
+            const y = e.clientY + 12;
+            const rect = tooltip.getBoundingClientRect();
+            tooltip.style.left = Math.min(x, window.innerWidth - rect.width - 20) + 'px';
+            tooltip.style.top = Math.min(y, window.innerHeight - rect.height - 20) + 'px';
+        }
+
+        function hideTreeTooltip() {
+            document.getElementById('tree-tooltip').classList.remove('visible');
+        }
+
         function addTimelineEvent(data) {
             const timeline = document.getElementById('timeline');
             const item = document.createElement('div');
@@ -823,8 +940,61 @@ val HTML_PAGE = """
             const type = data.type === 'started' ? 'started' : data.status;
             const detail = data.type === 'started' ? 'Started' : (data.durationMs > 0 ? data.durationMs.toFixed(1) + 'ms' : data.status);
             item.innerHTML = '<span class="timeline-time">' + formatTime(data.timestamp) + '</span><span class="timeline-dot ' + type + '"></span><div class="timeline-content"><div class="timeline-op">' + data.operation + '</div><div class="timeline-detail">' + detail + '</div></div>';
+
+            // Store data for tooltip
+            item.dataset.operation = data.operation;
+            item.dataset.type = data.type;
+            item.dataset.status = data.status || 'running';
+            item.dataset.dispatcher = data.dispatcher || 'Default';
+            item.dataset.timestamp = formatTime(data.timestamp);
+            item.dataset.duration = data.durationMs > 0 ? data.durationMs.toFixed(1) : '...';
+            item.dataset.id = data.id || '';
+            item.dataset.parentId = data.parentId || '';
+
+            // Add tooltip event listeners
+            item.addEventListener('mouseenter', showTimelineTooltip);
+            item.addEventListener('mousemove', moveTimelineTooltip);
+            item.addEventListener('mouseleave', hideTimelineTooltip);
+
             timeline.insertBefore(item, timeline.firstChild);
             while (timeline.children.length > 50) timeline.removeChild(timeline.lastChild);
+        }
+
+        function showTimelineTooltip(e) {
+            const item = e.currentTarget;
+            const tooltip = document.getElementById('timeline-tooltip');
+            const statusLabel = { running: 'Running', completed: 'Completed', failed: 'Failed', cancelled: 'Cancelled', started: 'Started' }[item.dataset.status] || item.dataset.status;
+            const eventType = item.dataset.type === 'started' ? 'Started' : 'Updated';
+            const status = item.dataset.type === 'started' ? 'running' : item.dataset.status;
+
+            let html = '<div class="timeline-tooltip-title"><span class="status-icon ' + status + '" style="width:14px;height:14px;font-size:8px">' + getIcon(status) + '</span>' + item.dataset.operation + '</div>';
+            html += '<div class="timeline-tooltip-row"><span>Event</span><span>' + eventType + '</span></div>';
+            html += '<div class="timeline-tooltip-row"><span>Status</span><span>' + statusLabel + '</span></div>';
+            html += '<div class="timeline-tooltip-row"><span>Time</span><span>' + item.dataset.timestamp + '</span></div>';
+            if (item.dataset.type !== 'started') {
+                html += '<div class="timeline-tooltip-row"><span>Duration</span><span>' + item.dataset.duration + 'ms</span></div>';
+            }
+            html += '<div class="timeline-tooltip-row"><span>Dispatcher</span><span>' + item.dataset.dispatcher + '</span></div>';
+            if (item.dataset.id) {
+                html += '<div class="timeline-tooltip-row"><span>Span ID</span><span style="font-size:0.7rem">' + item.dataset.id.substring(0, 12) + '...</span></div>';
+            }
+
+            tooltip.innerHTML = html;
+            tooltip.classList.add('visible');
+            moveTimelineTooltip(e);
+        }
+
+        function moveTimelineTooltip(e) {
+            const tooltip = document.getElementById('timeline-tooltip');
+            const x = e.clientX + 12;
+            const y = e.clientY + 12;
+            const rect = tooltip.getBoundingClientRect();
+            tooltip.style.left = Math.min(x, window.innerWidth - rect.width - 20) + 'px';
+            tooltip.style.top = Math.min(y, window.innerHeight - rect.height - 20) + 'px';
+        }
+
+        function hideTimelineTooltip() {
+            document.getElementById('timeline-tooltip').classList.remove('visible');
         }
 
         function handleEvent(event) {
