@@ -1,8 +1,11 @@
-package io.pandu.comet.visualizer
+package io.pandu.comet.visualizer.data
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import io.pandu.comet.visualizer.TraceEvent
+import io.pandu.comet.visualizer.TraceNode
+import io.pandu.comet.visualizer.TraceStatus
 
 /**
  * Manages the trace visualization state.
@@ -48,7 +51,7 @@ class TraceState {
             else -> {
                 traces[event.id]?.let { node ->
                     val updatedNode = node.copy(
-                        status = TraceStatus.fromString(event.status),
+                        status = TraceStatus.Companion.fromString(event.status),
                         durationMs = event.durationMs
                     )
                     traces[event.id] = updatedNode
@@ -98,14 +101,3 @@ class TraceState {
 
     private fun formatTimeOffset(ms: Double): String = "+${ms.toLong()}ms"
 }
-
-data class TraceStats(
-    val running: Int = 0,
-    val completed: Int = 0,
-    val failed: Int = 0
-)
-
-data class TimelineEvent(
-    val event: TraceEvent,
-    val timeOffset: String
-)

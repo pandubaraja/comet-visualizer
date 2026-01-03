@@ -1,12 +1,16 @@
-package io.pandu.comet.visualizer.ui
+package io.pandu.comet.visualizer.ui.gantt
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import io.pandu.comet.visualizer.TraceNode
-import io.pandu.comet.visualizer.TraceState
-import io.pandu.comet.visualizer.TraceStatus
-import kotlinx.browser.document
-import org.jetbrains.compose.web.dom.*
-import org.w3c.dom.events.MouseEvent
+import io.pandu.comet.visualizer.data.TraceState
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Span
+import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.WheelEvent
 import kotlin.math.max
 import kotlin.math.min
@@ -31,7 +35,7 @@ fun GanttView(traceState: TraceState) {
             "overflow-hidden"
         )
         ref { element ->
-            val handler: (org.w3c.dom.events.Event) -> Unit = { event ->
+            val handler: (Event) -> Unit = { event ->
                 val wheelEvent = event as WheelEvent
                 if (wheelEvent.ctrlKey || wheelEvent.metaKey) {
                     event.preventDefault()
@@ -69,7 +73,7 @@ fun GanttView(traceState: TraceState) {
                     "min-w-[200px]", "max-w-[200px]",
                     "overflow-y-auto", "overflow-x-hidden",
                     "border-r", "border-white/10",
-                    "bg-comet-bg", "flex-shrink-0"
+                    "dark:bg-comet-bg", "flex-shrink-0"
                 )
             }) {
                 Div({
@@ -151,173 +155,6 @@ fun GanttView(traceState: TraceState) {
     }
 }
 
-@Composable
-private fun GanttLabelRow(node: TraceNode, depth: Int) {
-    Div({
-        classes(
-            "min-h-[32px]",
-            "px-3", "py-1.5",
-            "flex", "items-center", "gap-2",
-            "border-b", "border-white/10",
-            "overflow-hidden",
-            "transition-colors", "duration-150",
-            "hover:bg-white/[0.06]"
-        )
-        if (depth == 0) {
-            classes("bg-white/[0.03]")
-        }
-    }) {
-        Span({
-            style { property("width", "${depth * 16}px") }
-        })
-        GanttStatusIcon(node.status)
-        Span({
-            classes(
-                "text-xs",
-                "whitespace-nowrap", "overflow-hidden", "text-ellipsis"
-            )
-        }) {
-            Text(node.operation)
-        }
-    }
-}
-
-@Composable
-private fun GanttBarRow(
-    node: TraceNode,
-    depth: Int,
-    scale: Double,
-    maxTime: Double,
-    onHover: (TraceNode, Int, Int) -> Unit,
-    onLeave: () -> Unit
-) {
-    val status = node.status
-    val leftPos = node.startMs * scale
-    val barWidth = if (node.durationMs > 0) {
-        max(node.durationMs * scale, 4.0)
-    } else {
-        max((maxTime - node.startMs) * scale * 0.3, 20.0)
-    }
-
-    val barGradientClass = when (status) {
-        TraceStatus.RUNNING -> "gantt-bar-running"
-        TraceStatus.COMPLETED -> "gantt-bar-completed"
-        TraceStatus.FAILED -> "gantt-bar-failed"
-        TraceStatus.CANCELLED -> "gantt-bar-cancelled"
-    }
-
-    Div({
-        classes(
-            "min-h-[32px]", "relative",
-            "border-b", "border-white/10",
-            "transition-colors", "duration-150",
-            "hover:bg-white/[0.06]"
-        )
-        if (depth == 0) {
-            classes("bg-white/[0.03]")
-        }
-    }) {
-        Div({
-            classes(
-                "absolute", "top-1",
-                "h-6", "rounded",
-                "min-w-1",
-                "transition-all", "duration-300",
-                "shadow-md",
-                "cursor-pointer",
-                "flex", "items-center",
-                "px-1.5", "overflow-hidden",
-                "hover:brightness-110", "hover:z-[4]",
-                barGradientClass
-            )
-            if (status == TraceStatus.RUNNING) {
-                classes("animate-pulse")
-            }
-            style {
-                property("left", "${leftPos}px")
-                property("width", "${barWidth}px")
-            }
-            onMouseMove { event ->
-                val mouseEvent = event.nativeEvent as MouseEvent
-                onHover(node, mouseEvent.clientX, mouseEvent.clientY)
-            }
-            onMouseLeave { onLeave() }
-        }) {
-            Span({
-                classes(
-                    "text-[0.7rem]", "text-white", "font-medium",
-                    "whitespace-nowrap", "overflow-hidden", "text-ellipsis"
-                )
-            }) {
-                Text(node.operation)
-            }
-        }
-    }
-}
-
-@Composable
-private fun GanttStatusIcon(status: TraceStatus) {
-    val (bgColor, icon) = when (status) {
-        TraceStatus.RUNNING -> "bg-blue-500" to "●"
-        TraceStatus.COMPLETED -> "bg-emerald-500" to "✓"
-        TraceStatus.FAILED -> "bg-red-500" to "✗"
-        TraceStatus.CANCELLED -> "bg-amber-500" to "○"
-    }
-
-    Span({
-        classes(
-            "w-[18px]", "h-[18px]",
-            "rounded-full",
-            "flex", "items-center", "justify-center",
-            "text-[10px]", "text-white",
-            "flex-shrink-0",
-            bgColor
-        )
-    }) {
-        Text(icon)
-    }
-}
-
-@Composable
-private fun GanttTooltip(node: TraceNode, x: Int, y: Int) {
-    Div({
-        classes(
-            "fixed", "z-[1000]",
-            "bg-slate-900", "border", "border-white/10",
-            "rounded-lg", "px-3.5", "py-2.5",
-            "text-xs", "shadow-xl",
-            "pointer-events-none",
-            "max-w-[300px]"
-        )
-        style {
-            property("left", "${x + 12}px")
-            property("top", "${y + 12}px")
-        }
-    }) {
-        Div({ classes("font-semibold", "mb-1.5", "flex", "items-center", "gap-2") }) {
-            GanttStatusIcon(node.status)
-            Text(node.operation)
-        }
-        GanttTooltipRow("Status", node.status.name.lowercase().replaceFirstChar { it.uppercase() })
-        GanttTooltipRow("Duration", if (node.durationMs > 0) "${node.durationMs.format(1)}ms" else "...")
-        GanttTooltipRow("Start", "+${node.startMs.format(1)}ms")
-        GanttTooltipRow("Dispatcher", node.dispatcher)
-    }
-}
-
-@Composable
-private fun GanttTooltipRow(label: String, value: String) {
-    Div({
-        classes(
-            "flex", "justify-between", "gap-4",
-            "mt-1", "text-slate-400"
-        )
-    }) {
-        Span({}) { Text(label) }
-        Span({ classes("font-mono", "text-slate-200") }) { Text(value) }
-    }
-}
-
 private fun orderNodes(traceState: TraceState): List<Pair<TraceNode, Int>> {
     val result = mutableListOf<Pair<TraceNode, Int>>()
     val processed = mutableSetOf<String>()
@@ -347,8 +184,4 @@ private fun getTimeStep(maxTime: Double, scale: Double): Double {
         minStep < 1000 -> 1000.0
         else -> 5000.0
     }
-}
-
-private fun Double.format(decimals: Int): String {
-    return this.asDynamic().toFixed(decimals) as String
 }

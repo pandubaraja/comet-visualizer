@@ -1,6 +1,6 @@
 package io.pandu.comet.visualizer.ui
 
-import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.css.StyleSheet
 
 /**
  * Minimal stylesheet for styles that can't be achieved with Tailwind.

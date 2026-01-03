@@ -1,20 +1,12 @@
-package io.pandu.comet.visualizer.ui
+package io.pandu.comet.visualizer.ui.stats
 
 import androidx.compose.runtime.Composable
-import io.pandu.comet.visualizer.TraceStats
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Span
+import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun StatsBar(stats: TraceStats) {
-    Div({ classes("flex", "gap-6", "mt-4") }) {
-        StatItem("bg-blue-500", stats.running, "running", true)
-        StatItem("bg-emerald-500", stats.completed, "completed", false)
-        StatItem("bg-red-500", stats.failed, "failed", false)
-    }
-}
-
-@Composable
-private fun StatItem(dotColor: String, count: Int, label: String, isPulsing: Boolean) {
+fun StatItem(dotColor: String, count: Int, label: String, isPulsing: Boolean) {
     Div({ classes("flex", "items-center", "gap-2") }) {
         Span({
             classes(

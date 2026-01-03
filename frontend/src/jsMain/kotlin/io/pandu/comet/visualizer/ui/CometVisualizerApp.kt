@@ -1,17 +1,32 @@
 package io.pandu.comet.visualizer.ui
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import io.pandu.comet.visualizer.SseClient
-import io.pandu.comet.visualizer.TraceState
+import io.pandu.comet.visualizer.data.TraceState
+import io.pandu.comet.visualizer.ui.gantt.GanttView
+import io.pandu.comet.visualizer.ui.stats.StatsBar
+import io.pandu.comet.visualizer.ui.timeline.TimelineView
+import io.pandu.comet.visualizer.ui.tree.TreeView
 import kotlinx.browser.document
-import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.css.Style
+import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.Header
+import org.jetbrains.compose.web.dom.Span
+import org.jetbrains.compose.web.dom.Text
 
 @Composable
 fun CometVisualizerApp() {
     val traceState = remember { TraceState() }
     var currentView by remember { mutableStateOf(ViewType.TREE) }
-    var isDarkTheme by remember { mutableStateOf(true) }
+    var isDarkTheme by remember { mutableStateOf(false) }
 
     // Connect to SSE on mount
     DisposableEffect(Unit) {
@@ -111,7 +126,7 @@ private fun ViewToggle(current: ViewType, onChange: (ViewType) -> Unit) {
             classes(
                 "px-3.5", "py-2", "border-0", "bg-transparent",
                 "text-slate-500", "dark:text-slate-400",
-                "cursor-pointer", "text-xs", "font-medium",
+                "cursor-pointer", "text-s", "font-medium",
                 "transition-all", "duration-200",
                 "hover:bg-slate-300", "dark:hover:bg-white/[0.06]"
             )
@@ -126,7 +141,7 @@ private fun ViewToggle(current: ViewType, onChange: (ViewType) -> Unit) {
             classes(
                 "px-3.5", "py-2", "border-0", "bg-transparent",
                 "text-slate-500", "dark:text-slate-400",
-                "cursor-pointer", "text-xs", "font-medium",
+                "cursor-pointer", "text-s", "font-medium",
                 "transition-all", "duration-200",
                 "hover:bg-slate-300", "dark:hover:bg-white/[0.06]"
             )
@@ -143,17 +158,28 @@ private fun ViewToggle(current: ViewType, onChange: (ViewType) -> Unit) {
 @Composable
 private fun ThemeToggle(isDark: Boolean, onChange: (Boolean) -> Unit) {
     Button({
-        classes(
-            "bg-white/[0.03]", "border", "border-white/10", "rounded-lg",
-            "px-3", "py-2", "cursor-pointer", "text-base",
-            "transition-all", "duration-200",
-            "flex", "items-center", "gap-1.5",
-            "hover:bg-slate-300", "dark:hover:bg-white/[0.06]"
-        )
+        val classes = if(isDark) {
+            listOf(
+                "bg-white/[0.03]", "border", "border-white/10", "rounded-lg",
+                "px-3", "py-2", "cursor-pointer", "text-base",
+                "transition-all", "duration-200",
+                "flex", "items-center", "gap-1.5",
+                "hover:bg-slate-300", "dark:hover:bg-white/[0.5]"
+            )
+        } else {
+            listOf(
+                "bg-black/[0.03]", "border", "border-black/10", "rounded-lg",
+                "px-3", "py-2", "cursor-pointer", "text-base",
+                "transition-all", "duration-200",
+                "flex", "items-center", "gap-1.5",
+                "hover:bg-slate-300", "dark:hover:bg-black/[0.06]"
+            )
+        }
+        classes(classes)
         onClick { onChange(!isDark) }
     }) {
         Span({}) {
-            Text(if (isDark) "Light" else "Dark")
+            Text(if (isDark) "☀\uFE0E Light" else "☾ Dark")
         }
     }
 }
