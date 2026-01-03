@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
@@ -10,19 +12,15 @@ kotlin {
         browser {
             commonWebpackConfig {
                 outputFileName = "comet-visualizer.js"
-            }
-            runTask {
-                devServerProperty.set(
-                    org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer(
-                        port = 3000,
-                        proxy = mutableListOf(
-                            org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer.Proxy(
-                                mutableListOf("/events"),
-                                "http://localhost:8080"
-                            )
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    port = 3000
+                    proxy = mutableListOf(
+                        KotlinWebpackConfig.DevServer.Proxy(
+                            mutableListOf("/events"),
+                            "http://localhost:8080"
                         )
                     )
-                )
+                }
             }
         }
         binaries.executable()

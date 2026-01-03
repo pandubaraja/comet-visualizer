@@ -34,6 +34,7 @@ fun TreeNodeItem(
                 "border-l-[3px]", borderColor,
                 "transition-all", "duration-200",
                 "cursor-pointer",
+                "bg-white", "dark:bg-neutral-700",
                 "hover:bg-slate-200", "dark:hover:bg-white/[0.06]"
             )
             if (isRunning) {

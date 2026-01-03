@@ -16,33 +16,8 @@ Real-time trace visualization for Kotlin coroutines. A web-based UI that display
 comet-visualizer/
 ├── shared/      # Kotlin Multiplatform data models (JVM + JS)
 ├── frontend/    # Kotlin/JS + Compose for Web UI
-├── library/     # JVM server library (TraceServer + bundled frontend)
-└── demo/        # Standalone demo application
+└── library/     # JVM server library (TraceServer + bundled frontend)
 ```
-
-## Quick Start
-
-### Run Demo
-
-```bash
-./gradlew :demo:run
-```
-
-Open http://localhost:8080 in your browser.
-
-### Development Mode (Hot Reload)
-
-Terminal 1 - Start SSE backend:
-```bash
-./gradlew :demo:runDev
-```
-
-Terminal 2 - Start frontend dev server:
-```bash
-./gradlew :frontend:jsBrowserDevelopmentRun --continuous
-```
-
-Open http://localhost:3000 - frontend changes auto-reload.
 
 ## Integration
 

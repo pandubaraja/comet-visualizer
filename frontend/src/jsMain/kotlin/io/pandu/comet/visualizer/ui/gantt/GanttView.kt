@@ -101,11 +101,11 @@ fun GanttView(traceState: TraceState) {
                         "border-b", "border-slate-200", "dark:border-white/10",
                         "bg-slate-50", "dark:bg-white/[0.02]",
                         "sticky", "top-0", "z-10",
-                        "min-h-[28px]"
+                        "min-h-[32px]"
                     )
                 }) {
                     Div({
-                        classes("relative", "min-h-[28px]")
+                        classes("relative", "min-h-[32px]")
                         style { property("width", "${(maxTime + 50) * scale}px") }
                     }) {
                         val step = getTimeStep(maxTime, scale)
@@ -115,8 +115,8 @@ fun GanttView(traceState: TraceState) {
                                 classes(
                                     "absolute", "top-0", "bottom-0",
                                     "border-l", "border-slate-200", "dark:border-white/10",
-                                    "px-2", "py-1",
-                                    "text-[0.65rem]", "text-slate-500",
+                                    "px-3", "py-2",
+                                    "text-xs", "font-semibold", "text-slate-500",
                                     "font-mono"
                                 )
                                 style { property("left", "${t * scale}px") }
@@ -129,21 +129,28 @@ fun GanttView(traceState: TraceState) {
                 }
 
                 // Bars
-                Div({
-                    style { property("width", "${(maxTime + 50) * scale}px") }
-                }) {
-                    orderedNodes.forEach { (node, depth) ->
-                        GanttBarRow(
-                            node = node,
-                            depth = depth,
-                            scale = scale,
-                            maxTime = maxTime,
-                            onHover = { n, x, y ->
-                                hoveredNode = n
-                                tooltipPosition = Pair(x, y)
-                            },
-                            onLeave = { hoveredNode = null }
-                        )
+                if(orderedNodes.isEmpty()) {
+                    Div({ classes("text-center", "py-12", "text-slate-500") }) {
+                        Div({ classes("text-4xl", "mb-3") }) { Text("") }
+                        Div({ classes("text-xl", "mb-3") }) { Text("\uD83D\uDC63 Waiting for traces...") }
+                    }
+                } else {
+                    Div({
+                        style { property("width", "${(maxTime + 50) * scale}px") }
+                    }) {
+                        orderedNodes.forEach { (node, depth) ->
+                            GanttBarRow(
+                                node = node,
+                                depth = depth,
+                                scale = scale,
+                                maxTime = maxTime,
+                                onHover = { n, x, y ->
+                                    hoveredNode = n
+                                    tooltipPosition = Pair(x, y)
+                                },
+                                onLeave = { hoveredNode = null }
+                            )
+                        }
                     }
                 }
             }

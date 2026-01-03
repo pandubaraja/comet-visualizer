@@ -26,8 +26,8 @@ import org.jetbrains.compose.web.dom.Text
 @Composable
 fun CometVisualizerApp() {
     val traceState = remember { TraceState() }
-    var currentViewStyle by remember { mutableStateOf(ViewStyle.TREE) }
-    var isDarkTheme by remember { mutableStateOf(true) }
+    var currentViewStyle by remember { mutableStateOf(ViewStyle.GANTT) }
+    var isDarkTheme by remember { mutableStateOf(false) }
 
     // Connect to SSE on mount
     DisposableEffect(Unit) {
@@ -53,7 +53,7 @@ fun CometVisualizerApp() {
     Div({
         classes(
             "grid", "grid-cols-1", "lg:grid-cols-[1fr_400px]", "h-screen",
-            "bg-slate-100", "dark:bg-comet-bg",
+            "bg-slate-200", "dark:bg-neutral-900",
             "text-slate-800", "dark:text-slate-200"
         )
     }) {
