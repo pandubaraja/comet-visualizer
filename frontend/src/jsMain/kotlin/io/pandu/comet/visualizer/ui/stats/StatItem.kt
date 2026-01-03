@@ -18,7 +18,7 @@ fun StatItem(dotColor: String, count: Int, label: String, isPulsing: Boolean) {
                 classes("animate-pulse")
             }
         })
-        Span({ classes("font-semibold", "text-lg") }) { Text("$count") }
-        Span({ classes("text-slate-500", "text-xs") }) { Text(label) }
+        Span({ classes("font-semibold", "text-lg", "text-slate-800", "dark:text-slate-200") }) { Text("$count") }
+        Span({ classes("text-slate-500", "dark:text-slate-400", "text-xs") }) { Text(label) }
     }
 }

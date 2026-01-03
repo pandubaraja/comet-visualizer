@@ -41,7 +41,7 @@ fun GanttView(traceState: TraceState) {
                     event.preventDefault()
                     event.stopPropagation()
                     val delta = if (wheelEvent.deltaY < 0) 1.2 else 0.8
-                    scale = min(50.0, max(5.0, scale * delta))
+                    scale = min(100.0, max(0.5, scale * delta))
                 }
             }
             element.addEventListener("wheel", handler, js("{ passive: false }"))
@@ -55,7 +55,7 @@ fun GanttView(traceState: TraceState) {
             classes(
                 "px-3", "py-2",
                 "text-xs", "text-slate-500",
-                "border-b", "border-white/10",
+                "border-b", "border-slate-200", "dark:border-white/10",
                 "flex", "justify-between", "items-center"
             )
         }) {
@@ -72,16 +72,17 @@ fun GanttView(traceState: TraceState) {
                 classes(
                     "min-w-[200px]", "max-w-[200px]",
                     "overflow-y-auto", "overflow-x-hidden",
-                    "border-r", "border-white/10",
-                    "dark:bg-comet-bg", "flex-shrink-0"
+                    "border-r", "border-slate-200", "dark:border-white/10",
+                    "bg-white", "dark:bg-comet-bg", "flex-shrink-0"
                 )
             }) {
                 Div({
                     classes(
                         "px-3", "py-2",
-                        "text-xs", "font-semibold", "text-slate-400",
-                        "border-b", "border-white/10",
-                        "bg-white/[0.02]",
+                        "text-xs", "font-semibold",
+                        "text-slate-500", "dark:text-slate-400",
+                        "border-b", "border-slate-200", "dark:border-white/10",
+                        "bg-slate-50", "dark:bg-white/[0.02]",
                         "min-h-[28px]"
                     )
                 }) { Text("Operation") }
@@ -97,8 +98,8 @@ fun GanttView(traceState: TraceState) {
                 // Time header
                 Div({
                     classes(
-                        "border-b", "border-white/10",
-                        "bg-white/[0.02]",
+                        "border-b", "border-slate-200", "dark:border-white/10",
+                        "bg-slate-50", "dark:bg-white/[0.02]",
                         "sticky", "top-0", "z-10",
                         "min-h-[28px]"
                     )
@@ -113,7 +114,7 @@ fun GanttView(traceState: TraceState) {
                             Div({
                                 classes(
                                     "absolute", "top-0", "bottom-0",
-                                    "border-l", "border-white/10",
+                                    "border-l", "border-slate-200", "dark:border-white/10",
                                     "px-2", "py-1",
                                     "text-[0.65rem]", "text-slate-500",
                                     "font-mono"

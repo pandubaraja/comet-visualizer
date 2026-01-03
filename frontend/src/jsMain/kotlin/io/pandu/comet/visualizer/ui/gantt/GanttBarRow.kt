@@ -36,12 +36,12 @@ fun GanttBarRow(
     Div({
         classes(
             "min-h-[32px]", "relative",
-            "border-b", "border-white/10",
+            "border-b", "border-slate-200", "dark:border-white/10",
             "transition-colors", "duration-150",
-            "hover:bg-white/[0.06]"
+            "hover:bg-slate-100", "dark:hover:bg-white/[0.06]"
         )
         if (depth == 0) {
-            classes("bg-white/[0.03]")
+            classes("bg-slate-50", "dark:bg-white/[0.03]")
         }
     }) {
         Div({

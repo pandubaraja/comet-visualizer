@@ -31,8 +31,14 @@ import java.util.concurrent.CopyOnWriteArrayList
  * comet.shutdown()
  * server.stop()
  * ```
+ *
+ * @param port The port to listen on (default: 8080)
+ * @param sseOnly If true, only serve SSE endpoint (for use with external dev server)
  */
-class TraceServer(private val port: Int = 8080) {
+class TraceServer(
+    private val port: Int = 8080,
+    private val sseOnly: Boolean = false
+) {
     private val clients = CopyOnWriteArrayList<HttpExchange>()
     private lateinit var server: HttpServer
 
@@ -42,23 +48,25 @@ class TraceServer(private val port: Int = 8080) {
     fun start() {
         server = HttpServer.create(InetSocketAddress(port), 0)
 
-        // Serve index.html
-        server.createContext("/") { exchange ->
-            if (exchange.requestURI.path == "/" || exchange.requestURI.path == "/index.html") {
-                serveResource(exchange, "/static/index.html", "text/html")
-            } else {
-                exchange.sendResponseHeaders(404, -1)
+        if (!sseOnly) {
+            // Serve index.html
+            server.createContext("/") { exchange ->
+                if (exchange.requestURI.path == "/" || exchange.requestURI.path == "/index.html") {
+                    serveResource(exchange, "/static/index.html", "text/html")
+                } else {
+                    exchange.sendResponseHeaders(404, -1)
+                }
             }
-        }
 
-        // Serve JS bundle
-        server.createContext("/comet-visualizer.js") { exchange ->
-            serveResource(exchange, "/static/comet-visualizer.js", "application/javascript")
-        }
+            // Serve JS bundle
+            server.createContext("/comet-visualizer.js") { exchange ->
+                serveResource(exchange, "/static/comet-visualizer.js", "application/javascript")
+            }
 
-        // Serve source maps if available
-        server.createContext("/comet-visualizer.js.map") { exchange ->
-            serveResource(exchange, "/static/comet-visualizer.js.map", "application/json")
+            // Serve source maps if available
+            server.createContext("/comet-visualizer.js.map") { exchange ->
+                serveResource(exchange, "/static/comet-visualizer.js.map", "application/json")
+            }
         }
 
         // SSE endpoint
@@ -73,7 +81,11 @@ class TraceServer(private val port: Int = 8080) {
 
         server.executor = null
         server.start()
-        println("Comet TraceServer started at http://localhost:$port")
+        if (sseOnly) {
+            println("Comet TraceServer (SSE only) started at http://localhost:$port/events")
+        } else {
+            println("Comet TraceServer started at http://localhost:$port")
+        }
     }
 
     private fun serveResource(exchange: HttpExchange, resourcePath: String, contentType: String) {

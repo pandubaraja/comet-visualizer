@@ -32,11 +32,11 @@ fun TimelineItem(
         classes(
             "flex", "items-start", "gap-3",
             "py-2",
-            "border-b", "border-white/10",
+            "border-b", "border-slate-200", "dark:border-white/10",
             "animate-fadeIn",
             "cursor-pointer",
             "transition-colors", "duration-150",
-            "hover:bg-white/[0.06]"
+            "hover:bg-slate-100", "dark:hover:bg-white/[0.06]"
         )
         onMouseMove { e ->
             val mouseEvent = e.nativeEvent as MouseEvent
@@ -46,7 +46,8 @@ fun TimelineItem(
     }) {
         Span({
             classes(
-                "font-mono", "text-[0.7rem]", "text-slate-500",
+                "font-mono", "text-[0.7rem]",
+                "text-slate-500", "dark:text-slate-500",
                 "min-w-[70px]"
             )
         }) {

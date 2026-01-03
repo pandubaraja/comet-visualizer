@@ -23,20 +23,24 @@ fun TreeNodeItem(
         TraceStatus.FAILED -> "border-l-red-500"
         TraceStatus.CANCELLED -> "border-l-amber-500"
     }
-    val bgClass = if (status == TraceStatus.RUNNING) "bg-blue-500/10" else "bg-white/[0.03]"
+    val isRunning = status == TraceStatus.RUNNING
 
     Div({ classes("relative", "my-1", "transition-opacity", "duration-200") }) {
         Div({
             classes(
                 "flex", "items-center", "gap-2",
                 "px-3", "py-2",
-                bgClass,
                 "rounded-md",
                 "border-l-[3px]", borderColor,
                 "transition-all", "duration-200",
                 "cursor-pointer",
-                "hover:bg-white/[0.06]"
+                "hover:bg-slate-200", "dark:hover:bg-white/[0.06]"
             )
+            if (isRunning) {
+                classes("bg-blue-500/10")
+            } else {
+                classes("bg-slate-100", "dark:bg-white/[0.03]")
+            }
             onMouseMove { event ->
                 val mouseEvent = event.nativeEvent as MouseEvent
                 onHover(node, mouseEvent.clientX, mouseEvent.clientY)
@@ -51,7 +55,8 @@ fun TreeNodeItem(
                 Span({
                     classes(
                         "font-mono", "text-xs",
-                        "text-blue-400", "bg-blue-500/15",
+                        "text-blue-600", "dark:text-blue-400",
+                        "bg-blue-100", "dark:bg-blue-500/15",
                         "px-1.5", "py-0.5", "rounded"
                     )
                 }) {
@@ -59,8 +64,9 @@ fun TreeNodeItem(
                 }
                 Span({
                     classes(
-                        "text-[0.7rem]", "text-slate-400",
-                        "bg-white/[0.08]",
+                        "text-[0.7rem]",
+                        "text-slate-500", "dark:text-slate-400",
+                        "bg-slate-200", "dark:bg-white/[0.08]",
                         "px-1.5", "py-0.5", "rounded"
                     )
                 }) {
@@ -75,7 +81,8 @@ fun TreeNodeItem(
             Div({
                 classes(
                     "ml-6", "pl-3",
-                    "border-l", "border-dashed", "border-white/15"
+                    "border-l", "border-dashed",
+                    "border-slate-300", "dark:border-white/15"
                 )
             }) {
                 children.forEach { child ->
