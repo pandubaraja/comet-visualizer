@@ -15,7 +15,7 @@ fun TreeView(traceState: TraceState) {
     var hoveredNode by remember { mutableStateOf<TraceNode?>(null) }
     var tooltipPosition by remember { mutableStateOf(Pair(0, 0)) }
 
-    Div({ classes("py-2") }) {
+    Div({ classes("py-2", "px-6") }) {
         val rootNodes = traceState.getRootNodes()
         if (rootNodes.isEmpty()) {
             Div({ classes("text-center", "py-12", "text-slate-500") }) {

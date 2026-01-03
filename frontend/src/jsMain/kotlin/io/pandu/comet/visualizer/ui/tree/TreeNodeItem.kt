@@ -1,6 +1,10 @@
 package io.pandu.comet.visualizer.ui.tree
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import io.pandu.comet.visualizer.TraceNode
 import io.pandu.comet.visualizer.TraceStatus
 import io.pandu.comet.visualizer.format
@@ -17,6 +21,10 @@ fun TreeNodeItem(
     onLeave: () -> Unit
 ) {
     val status = node.status
+    val children = node.children
+    val hasChildren = children.isNotEmpty()
+    var isExpanded by remember { mutableStateOf(true) }
+
     val borderColor = when (status) {
         TraceStatus.RUNNING -> "border-l-blue-500"
         TraceStatus.COMPLETED -> "border-l-emerald-500"
@@ -42,17 +50,54 @@ fun TreeNodeItem(
             } else {
                 classes("bg-slate-100", "dark:bg-white/[0.03]")
             }
+            onClick {
+                if (hasChildren) {
+                    isExpanded = !isExpanded
+                }
+            }
             onMouseMove { event ->
                 val mouseEvent = event.nativeEvent as MouseEvent
                 onHover(node, mouseEvent.clientX, mouseEvent.clientY)
             }
             onMouseLeave { onLeave() }
         }) {
+            // Expand/collapse icon
+            if (hasChildren) {
+                Span({
+                    classes(
+                        "w-4", "h-4",
+                        "flex", "items-center", "justify-center",
+                        "text-slate-400", "dark:text-slate-500",
+                        "transition-transform", "duration-200"
+                    )
+                    if (isExpanded) {
+                        classes("rotate-90")
+                    }
+                }) {
+                    Text("\u25B6") // Right-pointing triangle
+                }
+            } else {
+                Span({ classes("w-4") }) // Spacer for alignment
+            }
+
             TreeStatusIcon(status)
             Span({ classes("font-medium", "text-sm") }) {
                 Text(node.operation)
             }
             Div({ classes("ml-auto", "flex", "gap-2", "items-center") }) {
+                // Child count badge
+                if (hasChildren) {
+                    Span({
+                        classes(
+                            "text-[0.65rem]",
+                            "text-slate-500", "dark:text-slate-400",
+                            "bg-slate-200", "dark:bg-white/[0.08]",
+                            "px-1.5", "py-0.5", "rounded-full"
+                        )
+                    }) {
+                        Text("${children.size}")
+                    }
+                }
                 Span({
                     classes(
                         "font-mono", "text-xs",
@@ -76,14 +121,14 @@ fun TreeNodeItem(
             }
         }
 
-        // Children
-        val children = node.children
-        if (children.isNotEmpty()) {
+        // Children (collapsible)
+        if (hasChildren && isExpanded) {
             Div({
                 classes(
                     "ml-6", "pl-3",
                     "border-l", "border-dashed",
-                    "border-slate-300", "dark:border-white/15"
+                    "border-slate-300", "dark:border-white/15",
+                    "overflow-hidden"
                 )
             }) {
                 children.forEach { child ->

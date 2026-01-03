@@ -86,6 +86,11 @@ object MockData {
             add(cancelled("job-3-a", 100, 5800)) // This one is cancelled
             add(cancelled("job-3", 200, 5850))
 
+            add(started("job-4", "job-scheduler", "process-batch-4", "Dispatchers.IO", 5650))
+            add(started("job-4-a", "job-4", "validate-input", "Dispatchers.Default", 5700))
+            add(cancelled("job-4-a", 100, 5800)) // This one is cancelled
+            add(cancelled("job-4", 200, 5850))
+
             add(completed("job-scheduler", 1400, 5900))
         }
     }

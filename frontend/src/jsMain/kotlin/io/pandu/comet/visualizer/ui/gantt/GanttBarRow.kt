@@ -12,11 +12,12 @@ import kotlin.math.max
 @Composable
 fun GanttBarRow(
     node: TraceNode,
-    depth: Int,
     scale: Double,
     maxTime: Double,
+    isSelected: Boolean = false,
     onHover: (TraceNode, Int, Int) -> Unit,
-    onLeave: () -> Unit
+    onLeave: () -> Unit,
+    onClick: () -> Unit = {}
 ) {
     val status = node.status
     val leftPos = node.startMs * scale
@@ -37,11 +38,12 @@ fun GanttBarRow(
         classes(
             "min-h-[32px]", "relative",
             "border-b", "border-slate-200", "dark:border-white/10",
-            "transition-colors", "duration-150",
-            "hover:bg-slate-100", "dark:hover:bg-white/[0.06]"
+            "transition-colors", "duration-150"
         )
-        if (depth == 0) {
-            classes("bg-slate-50", "dark:bg-white/[0.03]")
+        if (isSelected) {
+            classes("bg-blue-100", "dark:bg-blue-900/30")
+        } else {
+            classes("hover:bg-slate-100", "dark:hover:bg-white/[0.06]")
         }
     }) {
         Div({
@@ -57,6 +59,9 @@ fun GanttBarRow(
                 "hover:brightness-110", "hover:z-[4]",
                 barGradientClass
             )
+            if (isSelected) {
+                classes("ring-2", "ring-blue-500", "ring-offset-1", "z-[5]")
+            }
             if (status == TraceStatus.RUNNING) {
                 classes("animate-pulse")
             }
@@ -69,6 +74,7 @@ fun GanttBarRow(
                 onHover(node, mouseEvent.clientX, mouseEvent.clientY)
             }
             onMouseLeave { onLeave() }
+            onClick { onClick() }
         }) {
             Span({
                 classes(
