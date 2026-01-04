@@ -35,6 +35,7 @@ fun GanttBarRow(
     }
 
     Div({
+        id("gantt-bar-${node.id}")
         classes(
             "min-h-[32px]", "relative",
             "border-b", "border-slate-200", "dark:border-white/10",

@@ -1,12 +1,14 @@
 package io.pandu.comet.visualizer.ui.gantt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.pandu.comet.visualizer.TraceNode
 import io.pandu.comet.visualizer.data.TraceState
+import kotlinx.browser.document
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
@@ -39,6 +41,25 @@ fun GanttView(
         timelineElement?.let { element ->
             val scrollLeft = (node.startMs * scale - element.clientWidth / 3).coerceAtLeast(0.0)
             element.scrollLeft = scrollLeft
+        }
+    }
+
+    // Scroll to selected node when it changes
+    LaunchedEffect(selectedNodeId, scale) {
+        selectedNodeId?.let { id ->
+            val node = traceState.traces[id]
+            if (node != null) {
+                // Scroll horizontally to node's start position with left margin
+                timelineElement?.let { element ->
+                    element.scrollLeft = (node.startMs * scale - 20).coerceAtLeast(0.0)
+                }
+                // Scroll vertically to center the bar
+                document.getElementById("gantt-bar-$id")?.let { element ->
+                    element.asDynamic().scrollIntoView(
+                        js("{ behavior: 'smooth', block: 'center' }")
+                    )
+                }
+            }
         }
     }
 
