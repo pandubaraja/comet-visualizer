@@ -52,6 +52,7 @@ fun GanttBarRow(
                 "absolute", "top-1",
                 "h-6", "rounded",
                 "min-w-1",
+                "z-[2]",
                 "transition-all", "duration-300",
                 "shadow-md",
                 "cursor-pointer",
