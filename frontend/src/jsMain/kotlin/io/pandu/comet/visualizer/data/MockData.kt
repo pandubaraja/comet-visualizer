@@ -92,6 +92,97 @@ object MockData {
             add(cancelled("job-4", 200, 5850))
 
             add(completed("job-scheduler", 1400, 5900))
+
+            // Deep pipeline example (depth 5)
+            // Level 1: Pipeline
+            add(started("pipeline", null, "data-pipeline", "Dispatchers.IO", 6000))
+
+            // Level 2: Stages
+            add(started("stage-1", "pipeline", "extract-stage", "Dispatchers.IO", 6100))
+            add(started("stage-2", "pipeline", "transform-stage", "Dispatchers.Default", 6100))
+
+            // Level 3: Extract tasks
+            add(started("extract-db", "stage-1", "extract-from-db", "Dispatchers.IO", 6150))
+            add(started("extract-api", "stage-1", "extract-from-api", "Dispatchers.IO", 6150))
+            add(started("extract-file", "stage-1", "extract-from-file", "Dispatchers.IO", 6150))
+
+            // Level 4: DB extraction details
+            add(started("db-connect", "extract-db", "db-connection", "Dispatchers.IO", 6200))
+            add(started("db-query", "extract-db", "execute-query", "Dispatchers.IO", 6200))
+
+            // Level 5: Query execution details
+            add(started("query-parse", "db-query", "parse-sql", "Dispatchers.Default", 6250))
+            add(completed("query-parse", 50, 6300))
+            add(started("query-plan", "db-query", "query-planner", "Dispatchers.Default", 6310))
+            add(completed("query-plan", 80, 6390))
+            add(started("query-exec", "db-query", "execute-plan", "Dispatchers.IO", 6400))
+            add(completed("query-exec", 200, 6600))
+            add(started("query-fetch", "db-query", "fetch-results", "Dispatchers.IO", 6610))
+            add(completed("query-fetch", 150, 6760))
+
+            add(completed("db-connect", 100, 6300))
+            add(completed("db-query", 600, 6800))
+            add(completed("extract-db", 700, 6850))
+
+            // Level 4: API extraction details
+            add(started("api-auth", "extract-api", "api-authenticate", "Dispatchers.IO", 6200))
+            add(started("api-call", "extract-api", "api-request", "Dispatchers.IO", 6350))
+
+            // Level 5: API call details
+            add(started("http-connect", "api-call", "http-connection", "Dispatchers.IO", 6360))
+            add(completed("http-connect", 50, 6410))
+            add(started("http-send", "api-call", "send-request", "Dispatchers.IO", 6420))
+            add(completed("http-send", 100, 6520))
+            add(started("http-recv", "api-call", "receive-response", "Dispatchers.IO", 6530))
+            add(completed("http-recv", 200, 6730))
+
+            add(completed("api-auth", 100, 6300))
+            add(completed("api-call", 400, 6750))
+            add(completed("extract-api", 650, 6800))
+
+            // Level 4: File extraction
+            add(started("file-open", "extract-file", "open-file", "Dispatchers.IO", 6200))
+            add(started("file-read", "extract-file", "read-content", "Dispatchers.IO", 6250))
+            add(started("file-parse", "extract-file", "parse-content", "Dispatchers.Default", 6400))
+
+            add(completed("file-open", 40, 6240))
+            add(completed("file-read", 140, 6390))
+            add(completed("file-parse", 200, 6600))
+            add(completed("extract-file", 450, 6650))
+
+            add(completed("stage-1", 600, 6700))
+
+            // Level 3: Transform tasks
+            add(started("transform-clean", "stage-2", "clean-data", "Dispatchers.Default", 6200))
+            add(started("transform-enrich", "stage-2", "enrich-data", "Dispatchers.Default", 6400))
+            add(started("transform-validate", "stage-2", "validate-data", "Dispatchers.Default", 6600))
+
+            // Level 4: Clean sub-tasks
+            add(started("clean-nulls", "transform-clean", "remove-nulls", "Dispatchers.Default", 6220))
+            add(started("clean-dupes", "transform-clean", "remove-duplicates", "Dispatchers.Default", 6220))
+
+            add(completed("clean-nulls", 80, 6300))
+            add(completed("clean-dupes", 100, 6320))
+            add(completed("transform-clean", 150, 6350))
+
+            // Level 4: Enrich sub-tasks
+            add(started("enrich-geo", "transform-enrich", "geo-lookup", "Dispatchers.IO", 6420))
+            add(started("enrich-meta", "transform-enrich", "add-metadata", "Dispatchers.Default", 6420))
+
+            add(completed("enrich-geo", 120, 6540))
+            add(completed("enrich-meta", 80, 6500))
+            add(completed("transform-enrich", 180, 6580))
+
+            // Level 4: Validate sub-tasks
+            add(started("validate-schema", "transform-validate", "schema-check", "Dispatchers.Default", 6620))
+            add(started("validate-rules", "transform-validate", "business-rules", "Dispatchers.Default", 6620))
+
+            add(completed("validate-schema", 60, 6680))
+            add(completed("validate-rules", 100, 6720))
+            add(completed("transform-validate", 150, 6750))
+
+            add(completed("stage-2", 700, 6800))
+            add(completed("pipeline", 850, 6850))
         }
     }
 

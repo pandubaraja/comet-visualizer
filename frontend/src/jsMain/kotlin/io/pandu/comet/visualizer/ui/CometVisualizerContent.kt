@@ -6,12 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import io.pandu.comet.visualizer.TraceNode
 import io.pandu.comet.visualizer.data.TraceState
 import io.pandu.comet.visualizer.ui.gantt.GanttView
 import io.pandu.comet.visualizer.ui.stats.StatsBar
 import io.pandu.comet.visualizer.ui.toggle.ThemeToggle
 import io.pandu.comet.visualizer.ui.toggle.ViewStyle
 import io.pandu.comet.visualizer.ui.toggle.ViewStyleToggle
+import io.pandu.comet.visualizer.ui.tree.HorizontalTreeGraph
+import io.pandu.comet.visualizer.ui.tree.NodeDetailsPanel
 import io.pandu.comet.visualizer.ui.tree.TreeView
 import kotlinx.browser.document
 import org.jetbrains.compose.web.css.Style
@@ -28,6 +31,7 @@ fun CometVisualizerContent(
 ) {
     var currentViewStyle by remember { mutableStateOf(ViewStyle.TREE) }
     var isDarkTheme by remember { mutableStateOf(false) }
+    var selectedNode by remember { mutableStateOf<TraceNode?>(null) }
 
     // Toggle dark class on body
     LaunchedEffect(isDarkTheme) {
@@ -43,7 +47,7 @@ fun CometVisualizerContent(
     // Main layout
     Div({
         classes(
-            "h-screen", "py-6", "overflow-y-auto",
+            "h-screen", "flex", "flex-col",
             "bg-slate-100", "dark:bg-neutral-900",
             "text-slate-800", "dark:text-slate-200"
         )
@@ -51,9 +55,10 @@ fun CometVisualizerContent(
         // Header
         Header({
             classes(
-               "pb-4", "px-6",
+                "pb-4", "px-6", "pt-6", "flex-shrink-0",
+                "bg-white", "dark:bg-neutral-800",
                 "border-b", "border-slate-200", "dark:border-white/10",
-                "flex", "justify-between", "items-start", "sticky"
+                "flex", "justify-between", "items-start"
             )
         }) {
             Div({}) {
@@ -84,10 +89,56 @@ fun CometVisualizerContent(
             }
         }
 
-        // Content based on view
-        when (currentViewStyle) {
-            ViewStyle.TREE -> TreeView(traceState)
-            ViewStyle.GANTT -> GanttView(traceState)
+        // Content with sidebar layout
+        Div({
+            classes("flex", "flex-1", "min-h-0")
+        }) {
+            // Left Sidebar - Tree View
+            Div({
+                classes(
+                    "w-64", "flex-shrink-0",
+                    "bg-white", "dark:bg-neutral-800",
+                    "border-r", "border-slate-200", "dark:border-white/10",
+                    "overflow-y-auto"
+                )
+            }) {
+                TreeView(
+                    traceState = traceState,
+                    selectedNodeId = selectedNode?.id,
+                    onNodeSelect = { node -> selectedNode = node }
+                )
+            }
+
+            // Main Content Area - Horizontal Tree Graph
+            Div({
+                classes("flex-1", "overflow-auto")
+            }) {
+                when (currentViewStyle) {
+                    ViewStyle.TREE -> HorizontalTreeGraph(
+                        traceState = traceState,
+                        selectedNodeId = selectedNode?.id,
+                        onNodeSelect = { node -> selectedNode = node }
+                    )
+                    ViewStyle.GANTT -> GanttView(traceState)
+                }
+            }
+
+            // Right Sidebar - Node Details
+            selectedNode?.let { node ->
+                Div({
+                    classes(
+                        "w-80", "flex-shrink-0",
+                        "bg-white", "dark:bg-neutral-800",
+                        "border-l", "border-slate-200", "dark:border-white/10",
+                        "overflow-y-auto"
+                    )
+                }) {
+                    NodeDetailsPanel(
+                        node = traceState.traces[node.id] ?: node,
+                        onClose = { selectedNode = null }
+                    )
+                }
+            }
         }
     }
 }
