@@ -26,7 +26,7 @@ fun CometVisualizerContent(
     traceState: TraceState,
     badge: String? = null
 ) {
-    var currentViewStyle by remember { mutableStateOf(ViewStyle.GANTT) }
+    var currentViewStyle by remember { mutableStateOf(ViewStyle.TREE) }
     var isDarkTheme by remember { mutableStateOf(false) }
 
     // Toggle dark class on body
@@ -51,7 +51,7 @@ fun CometVisualizerContent(
         // Header
         Header({
             classes(
-                "mb-6", "pb-4", "px-6",
+               "pb-4", "px-6",
                 "border-b", "border-slate-200", "dark:border-white/10",
                 "flex", "justify-between", "items-start", "sticky"
             )

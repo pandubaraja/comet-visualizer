@@ -15,7 +15,9 @@ fun TreeView(traceState: TraceState) {
     var hoveredNode by remember { mutableStateOf<TraceNode?>(null) }
     var tooltipPosition by remember { mutableStateOf(Pair(0, 0)) }
 
-    Div({ classes("py-2", "px-6") }) {
+    Div({ classes(
+        "py-2", "px-4"
+    ) }) {
         val rootNodes = traceState.getRootNodes()
         if (rootNodes.isEmpty()) {
             Div({ classes("text-center", "py-12", "text-slate-500") }) {
@@ -23,16 +25,22 @@ fun TreeView(traceState: TraceState) {
                 Div({ classes("text-xl", "mb-3") }) { Text("\uD83D\uDC63 Waiting for traces...") }
             }
         } else {
-            rootNodes.forEach { node ->
-                TreeNodeItem(
-                    node = node,
-                    allNodes = traceState.traces,
-                    onHover = { n, x, y ->
-                        hoveredNode = n
-                        tooltipPosition = Pair(x, y)
-                    },
-                    onLeave = { hoveredNode = null }
-                )
+            Div({ classes(
+                "flex-1", "flex-col",
+                "h-[calc(100vh-140px)]",
+                "overflow-auto"
+            ) }) {
+                rootNodes.forEach { node ->
+                    TreeNodeItem(
+                        node = node,
+                        allNodes = traceState.traces,
+                        onHover = { n, x, y ->
+                            hoveredNode = n
+                            tooltipPosition = Pair(x, y)
+                        },
+                        onLeave = { hoveredNode = null }
+                    )
+                }
             }
         }
     }
