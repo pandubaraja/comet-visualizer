@@ -17,15 +17,15 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Composable
-fun GanttView(traceState: TraceState) {
+fun GanttView(
+    traceState: TraceState,
+    selectedNodeId: String? = null,
+    onNodeSelect: (TraceNode) -> Unit = {}
+) {
     var hoveredNode by remember { mutableStateOf<TraceNode?>(null) }
     var tooltipPosition by remember { mutableStateOf(Pair(0, 0)) }
     var scale by remember { mutableStateOf(10.0) } // pixels per ms
     var timelineElement by remember { mutableStateOf<Element?>(null) }
-    var selectedNodeId by remember { mutableStateOf<String?>(null) }
-    var labelsScrollEl by remember { mutableStateOf<Element?>(null) }
-    var timelineScrollEl by remember { mutableStateOf<Element?>(null) }
-    var isSyncing by remember { mutableStateOf(false) }
 
     val allNodes = traceState.traces.values.toList()
     val maxTime = allNodes.maxOfOrNull { node ->
@@ -34,17 +34,8 @@ fun GanttView(traceState: TraceState) {
 
     val orderedNodes = remember(allNodes) { orderNodes(traceState) }
 
-    fun syncScroll(source: Element?, target: Element?) {
-        if (source == null || target == null) return
-        if (isSyncing) return
-
-        isSyncing = true
-        target.scrollTop = source.scrollTop
-        isSyncing = false
-    }
-
     fun selectNode(node: TraceNode) {
-        selectedNodeId = node.id
+        onNodeSelect(node)
         timelineElement?.let { element ->
             val scrollLeft = (node.startMs * scale - element.clientWidth / 3).coerceAtLeast(0.0)
             element.scrollLeft = scrollLeft
@@ -88,140 +79,84 @@ fun GanttView(traceState: TraceState) {
             }
         }
 
-        // Content
-        Div({ classes("flex-1", "flex", "overflow-hidden") }) {
-            // Labels column
+        // Content - Timeline only (labels are in sidebar)
+        Div({
+            classes("flex-1", "overflow-auto")
+            ref { el ->
+                timelineElement = el
+                onDispose { }
+            }
+        }) {
+            // Time header
             Div({
                 classes(
-                    "min-w-[200px]", "max-w-[200px]",
-                    "overflow-auto",
-                    "border-r", "border-slate-200", "dark:border-white/10",
-                    "bg-white", "dark:bg-neutral-900", "flex-shrink-0",
-                    "flex", "flex-col"
+                    "border-b", "border-slate-200", "dark:border-white/10",
+                    "bg-slate-50", "dark:bg-white/[0.02]",
+                    "sticky", "top-0", "z-10",
+                    "min-h-[32px]", "relative"
                 )
+                style { property("width", "${(maxTime + 50) * scale}px") }
             }) {
-                // Operation header
-                Div({
-                    classes(
-                        "px-3", "py-2",
-                        "text-xs", "font-semibold",
-                        "text-slate-500", "dark:text-slate-400",
-                        "border-b", "border-slate-200", "dark:border-white/10",
-                        "bg-slate-50", "dark:bg-white/[0.02]",
-                        "min-h-[32px]", "flex-shrink-0",
-                        "sticky", "top-0", "z-10"
-                    )
-                }) { Text("Operation") }
-
-                Div({
-                    classes("flex-1", "overflow-auto")
-                    ref { el ->
-                        labelsScrollEl = el
-                        val handler: (Event) -> Unit = {
-                            syncScroll(labelsScrollEl, timelineScrollEl)
-                        }
-                        el.addEventListener("scroll", handler)
-                        onDispose {
-                            el.removeEventListener("scroll", handler)
-                        }
-                    }
-                }) {
-                    orderedNodes.forEach { (node, depth) ->
-                        GanttLabelRow(
-                            node = node,
-                            depth = depth,
-                            isSelected = node.id == selectedNodeId,
-                            onClick = { selectNode(node) }
+                val step = getTimeStep(maxTime, scale)
+                var t = 0.0
+                while (t <= maxTime + 50) {
+                    Div({
+                        classes(
+                            "absolute", "top-0", "bottom-0",
+                            "border-l", "border-slate-200", "dark:border-white/10",
+                            "px-3", "py-2",
+                            "text-xs", "font-semibold", "text-slate-500",
+                            "font-mono", "whitespace-nowrap"
                         )
+                        style { property("left", "${t * scale}px") }
+                    }) {
+                        Text("${t.toInt()}ms")
                     }
+                    t += step
                 }
             }
 
-            // Timeline column - scrolls both directions
-            Div({
-                classes("flex-1", "overflow-auto")
-                ref { el ->
-                    timelineScrollEl = el
-                    val handler: (Event) -> Unit = {
-                        syncScroll(timelineScrollEl, labelsScrollEl)
-                    }
-                    el.addEventListener("scroll", handler)
-                    onDispose {
-                        el.removeEventListener("scroll", handler)
-                    }
+            // Bars
+            if (orderedNodes.isEmpty()) {
+                Div({ classes("text-center", "py-12", "text-slate-500") }) {
+                    Div({ classes("text-4xl", "mb-3") }) { Text("") }
+                    Div({ classes("text-xl", "mb-3") }) { Text("\uD83D\uDC63 Waiting for traces...") }
                 }
-            }) {
-                // Time header
+            } else {
                 Div({
-                    classes(
-                        "border-b", "border-slate-200", "dark:border-white/10",
-                        "bg-slate-50", "dark:bg-white/[0.02]",
-                        "sticky", "top-0", "z-10",
-                        "min-h-[32px]", "relative"
-                    )
+                    classes("relative")
                     style { property("width", "${(maxTime + 50) * scale}px") }
                 }) {
-                    val step = getTimeStep(maxTime, scale)
-                    var t = 0.0
-                    while (t <= maxTime + 50) {
-                        Div({
-                            classes(
-                                "absolute", "top-0", "bottom-0",
-                                "border-l", "border-slate-200", "dark:border-white/10",
-                                "px-3", "py-2",
-                                "text-xs", "font-semibold", "text-slate-500",
-                                "font-mono", "whitespace-nowrap"
-                            )
-                            style { property("left", "${t * scale}px") }
-                        }) {
-                            Text("${t.toInt()}ms")
-                        }
-                        t += step
+                    orderedNodes.forEach { (node, _) ->
+                        GanttBarRow(
+                            node = node,
+                            scale = scale,
+                            maxTime = maxTime,
+                            isSelected = node.id == selectedNodeId,
+                            onHover = { n, x, y ->
+                                hoveredNode = n
+                                tooltipPosition = Pair(x, y)
+                            },
+                            onLeave = { hoveredNode = null },
+                            onClick = { selectNode(node) }
+                        )
                     }
-                }
 
-                // Bars
-                if (orderedNodes.isEmpty()) {
-                    Div({ classes("text-center", "py-12", "text-slate-500") }) {
-                        Div({ classes("text-4xl", "mb-3") }) { Text("") }
-                        Div({ classes("text-xl", "mb-3") }) { Text("\uD83D\uDC63 Waiting for traces...") }
-                    }
-                } else {
+                    // Vertical grid lines
                     Div({
-                        classes("relative")
-                        style { property("width", "${(maxTime + 50) * scale}px") }
+                        classes("absolute", "inset-0", "pointer-events-none", "z-[1]")
                     }) {
-                        orderedNodes.forEach { (node, depth) ->
-                            GanttBarRow(
-                                node = node,
-                                scale = scale,
-                                maxTime = maxTime,
-                                isSelected = node.id == selectedNodeId,
-                                onHover = { n, x, y ->
-                                    hoveredNode = n
-                                    tooltipPosition = Pair(x, y)
-                                },
-                                onLeave = { hoveredNode = null },
-                                onClick = { selectNode(node) }
-                            )
-                        }
-
-                        // Vertical grid lines
-                        Div({
-                            classes("absolute", "inset-0", "pointer-events-none", "z-[1]")
-                        }) {
-                            val step = getTimeStep(maxTime, scale)
-                            var t = 0.0
-                            while (t <= maxTime + 50) {
-                                Div({
-                                    classes(
-                                        "absolute", "top-0", "bottom-0",
-                                        "border-l", "border-slate-300/50", "dark:border-white/5"
-                                    )
-                                    style { property("left", "${t * scale}px") }
-                                })
-                                t += step
-                            }
+                        val step = getTimeStep(maxTime, scale)
+                        var t = 0.0
+                        while (t <= maxTime + 50) {
+                            Div({
+                                classes(
+                                    "absolute", "top-0", "bottom-0",
+                                    "border-l", "border-slate-300/50", "dark:border-white/5"
+                                )
+                                style { property("left", "${t * scale}px") }
+                            })
+                            t += step
                         }
                     }
                 }

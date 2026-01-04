@@ -119,7 +119,11 @@ fun CometVisualizerContent(
                         selectedNodeId = selectedNode?.id,
                         onNodeSelect = { node -> selectedNode = node }
                     )
-                    ViewStyle.GANTT -> GanttView(traceState)
+                    ViewStyle.GANTT -> GanttView(
+                        traceState = traceState,
+                        selectedNodeId = selectedNode?.id,
+                        onNodeSelect = { node -> selectedNode = node }
+                    )
                 }
             }
 
