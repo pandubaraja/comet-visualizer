@@ -16,13 +16,22 @@ fun TreeNodeItem(
     node: TraceNode,
     allNodes: Map<String, TraceNode>,
     selectedNodeId: String? = null,
-    onNodeSelect: (TraceNode) -> Unit = {}
+    onNodeSelect: (TraceNode) -> Unit = {},
+    searchQuery: String = "",
+    matchingNodeIds: Set<String> = emptySet()
 ) {
+    // Hide non-matching nodes when searching
+    if (searchQuery.isNotEmpty() && node.id !in matchingNodeIds) {
+        return
+    }
+
     val status = node.status
     val children = node.children
     val hasChildren = children.isNotEmpty()
     var isExpanded by remember { mutableStateOf(true) }
     val isSelected = node.id == selectedNodeId
+    val isMatch = searchQuery.isNotEmpty() &&
+        node.operation.lowercase().contains(searchQuery.lowercase())
 
     val statusColor = when (status) {
         TraceStatus.RUNNING -> "bg-blue-500"
@@ -41,6 +50,8 @@ fun TreeNodeItem(
             )
             if (isSelected) {
                 classes("bg-blue-100", "dark:bg-blue-900/30")
+            } else if (isMatch) {
+                classes("bg-yellow-100", "dark:bg-yellow-900/30")
             } else {
                 classes("hover:bg-slate-200", "dark:hover:bg-white/[0.06]")
             }
@@ -79,17 +90,21 @@ fun TreeNodeItem(
                 }
             })
 
-            // Operation name
+            // Operation name with highlight
             Span({
                 classes(
                     "text-sm", "truncate",
                     "text-slate-700", "dark:text-slate-300"
                 )
-                if (isSelected) {
+                if (isSelected || isMatch) {
                     classes("font-medium")
                 }
             }) {
-                Text(node.operation)
+                if (isMatch && searchQuery.isNotEmpty()) {
+                    HighlightedText(node.operation, searchQuery)
+                } else {
+                    Text(node.operation)
+                }
             }
         }
 
@@ -102,10 +117,31 @@ fun TreeNodeItem(
                         node = updatedChild,
                         allNodes = allNodes,
                         selectedNodeId = selectedNodeId,
-                        onNodeSelect = onNodeSelect
+                        onNodeSelect = onNodeSelect,
+                        searchQuery = searchQuery,
+                        matchingNodeIds = matchingNodeIds
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HighlightedText(text: String, query: String) {
+    val lowerText = text.lowercase()
+    val lowerQuery = query.lowercase()
+    val index = lowerText.indexOf(lowerQuery)
+
+    if (index >= 0) {
+        Text(text.substring(0, index))
+        Span({
+            classes("bg-yellow-300", "dark:bg-yellow-600", "rounded-sm", "px-0.5")
+        }) {
+            Text(text.substring(index, index + query.length))
+        }
+        Text(text.substring(index + query.length))
+    } else {
+        Text(text)
     }
 }
