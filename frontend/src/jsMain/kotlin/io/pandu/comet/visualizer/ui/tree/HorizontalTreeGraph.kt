@@ -345,7 +345,7 @@ private fun TreeGraphNode(
                     "truncate", "flex-1"
                 )
             }) {
-                Text(node.operation)
+                Text(node.operation.ifEmpty { node.id })
             }
         }
 

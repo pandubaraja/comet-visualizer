@@ -30,8 +30,9 @@ fun TreeNodeItem(
     val hasChildren = children.isNotEmpty()
     var isExpanded by remember { mutableStateOf(true) }
     val isSelected = node.id == selectedNodeId
+    val displayName = node.operation.ifEmpty { node.id }
     val isMatch = searchQuery.isNotEmpty() &&
-        node.operation.lowercase().contains(searchQuery.lowercase())
+        displayName.lowercase().contains(searchQuery.lowercase())
 
     val statusColor = when (status) {
         TraceStatus.RUNNING -> "bg-blue-500"
@@ -101,9 +102,9 @@ fun TreeNodeItem(
                 }
             }) {
                 if (isMatch && searchQuery.isNotEmpty()) {
-                    HighlightedText(node.operation, searchQuery)
+                    HighlightedText(displayName, searchQuery)
                 } else {
-                    Text(node.operation)
+                    Text(displayName)
                 }
             }
         }
