@@ -84,7 +84,7 @@ fun GanttBarRow(
                     "whitespace-nowrap", "overflow-hidden", "text-ellipsis"
                 )
             }) {
-                Text(node.operation)
+                Text(if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation)
             }
         }
     }

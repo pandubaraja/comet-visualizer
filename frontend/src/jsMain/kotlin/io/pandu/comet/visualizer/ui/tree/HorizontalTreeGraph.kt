@@ -345,7 +345,7 @@ private fun TreeGraphNode(
                     "truncate", "flex-1"
                 )
             }) {
-                Text(node.operation.ifEmpty { node.id })
+                Text(if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation)
             }
         }
 

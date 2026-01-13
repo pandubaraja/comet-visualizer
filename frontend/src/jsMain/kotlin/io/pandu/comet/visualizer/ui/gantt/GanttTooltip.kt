@@ -24,7 +24,7 @@ fun GanttTooltip(node: TraceNode, x: Int, y: Int) {
     }) {
         Div({ classes("font-semibold", "mb-1.5", "flex", "items-center", "gap-2") }) {
             GanttStatusIcon(node.status)
-            Text(node.operation)
+            Text(if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation)
         }
         GanttTooltipRow("Status", node.status.name.lowercase().replaceFirstChar { it.uppercase() })
         GanttTooltipRow("Duration", if (node.durationMs > 0) "${node.durationMs.format(1)}ms" else "...")

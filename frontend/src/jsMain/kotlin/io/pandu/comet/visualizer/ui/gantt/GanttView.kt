@@ -75,8 +75,25 @@ fun GanttView(
                 if (wheelEvent.ctrlKey || wheelEvent.metaKey) {
                     event.preventDefault()
                     event.stopPropagation()
-                    val delta = if (wheelEvent.deltaY < 0) 1.2 else 0.8
-                    scale = min(100.0, max(0.1, scale * delta))
+
+                    timelineElement?.let { timeline ->
+                        // Get mouse X position relative to timeline viewport
+                        val rect = timeline.getBoundingClientRect()
+                        val mouseX = wheelEvent.clientX - rect.left
+
+                        // Calculate the time value under the mouse pointer
+                        val timeAtMouse = (timeline.scrollLeft + mouseX) / scale
+
+                        // Apply zoom
+                        val delta = if (wheelEvent.deltaY < 0) 1.05 else 0.95
+                        val newScale = min(100.0, max(0.1, scale * delta))
+
+                        // Adjust scroll so the same time stays under the mouse
+                        val newScrollLeft = timeAtMouse * newScale - mouseX
+
+                        scale = newScale
+                        timeline.scrollLeft = newScrollLeft.coerceAtLeast(0.0)
+                    }
                 }
             }
             element.addEventListener("wheel", handler, js("{ passive: false }"))

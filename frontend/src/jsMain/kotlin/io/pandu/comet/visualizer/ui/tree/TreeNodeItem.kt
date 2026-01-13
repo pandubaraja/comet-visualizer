@@ -30,7 +30,7 @@ fun TreeNodeItem(
     val hasChildren = children.isNotEmpty()
     var isExpanded by remember { mutableStateOf(true) }
     val isSelected = node.id == selectedNodeId
-    val displayName = node.operation.ifEmpty { node.id }
+    val displayName = if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation
     val isMatch = searchQuery.isNotEmpty() &&
         displayName.lowercase().contains(searchQuery.lowercase())
 
