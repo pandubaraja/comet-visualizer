@@ -24,12 +24,15 @@ fun TreeTooltip(node: TraceNode, x: Int, y: Int) {
     }) {
         Div({ classes("font-semibold", "mb-1.5", "flex", "items-center", "gap-2") }) {
             TreeStatusIcon(node.status)
-            Text(node.operation)
+            Text(if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation)
         }
         TooltipRow("Status", node.status.name.lowercase().replaceFirstChar { it.uppercase() })
         TooltipRow("Duration", if (node.durationMs > 0) "${node.durationMs.format(1)}ms" else "running...")
         TooltipRow("Start", "+${node.startMs.format(1)}ms")
         TooltipRow("Dispatcher", node.dispatcher)
+        if (node.sourceFile.isNotEmpty()) {
+            TooltipRow("Source", if (node.lineNumber > 0) "${node.sourceFile}:${node.lineNumber}" else node.sourceFile)
+        }
         TooltipRow("Span ID", node.id.take(16) + "...")
         node.parentId?.let { parentId ->
             TooltipRow("Parent ID", parentId.take(16) + "...")

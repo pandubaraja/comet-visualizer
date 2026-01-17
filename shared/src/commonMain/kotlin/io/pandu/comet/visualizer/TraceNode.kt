@@ -11,5 +11,7 @@ data class TraceNode(
     val durationMs: Double,
     val dispatcher: String,
     val startMs: Double,
+    val sourceFile: String = "",
+    val lineNumber: Int = 0,
     val children: MutableList<TraceNode> = mutableListOf()
 )

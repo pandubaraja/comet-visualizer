@@ -33,7 +33,9 @@ class TraceState {
                     status = TraceStatus.RUNNING,
                     durationMs = 0.0,
                     dispatcher = event.dispatcher,
-                    startMs = startMs
+                    startMs = startMs,
+                    sourceFile = event.sourceFile,
+                    lineNumber = event.lineNumber
                 )
                 traces[event.id] = node
 

@@ -30,5 +30,8 @@ fun GanttTooltip(node: TraceNode, x: Int, y: Int) {
         GanttTooltipRow("Duration", if (node.durationMs > 0) "${node.durationMs.format(1)}ms" else "...")
         GanttTooltipRow("Start", "+${node.startMs.format(1)}ms")
         GanttTooltipRow("Dispatcher", node.dispatcher)
+        if (node.sourceFile.isNotEmpty()) {
+            GanttTooltipRow("Source", if (node.lineNumber > 0) "${node.sourceFile}:${node.lineNumber}" else node.sourceFile)
+        }
     }
 }

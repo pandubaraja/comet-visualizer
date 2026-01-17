@@ -62,6 +62,14 @@ fun NodeDetailsPanel(
         if (node.children.isNotEmpty()) {
             DetailRow("Children", "${node.children.size}")
         }
+
+        // Source location
+        if (node.sourceFile.isNotEmpty()) {
+            DetailRow(
+                "Source",
+                if (node.lineNumber > 0) "${node.sourceFile}:${node.lineNumber}" else node.sourceFile
+            )
+        }
     }
 }
 
