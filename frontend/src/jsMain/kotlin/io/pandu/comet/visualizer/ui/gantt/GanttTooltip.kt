@@ -33,5 +33,8 @@ fun GanttTooltip(node: TraceNode, x: Int, y: Int) {
         if (node.sourceFile.isNotEmpty()) {
             GanttTooltipRow("Source", if (node.lineNumber > 0) "${node.sourceFile}:${node.lineNumber}" else node.sourceFile)
         }
+        if (node.isUnstructured) {
+            GanttTooltipRow("Warning", "Unstructured concurrency", "text-orange-400")
+        }
     }
 }

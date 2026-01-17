@@ -107,6 +107,22 @@ fun TreeNodeItem(
                     Text(displayName)
                 }
             }
+
+            // Unstructured warning badge
+            if (node.isUnstructured) {
+                Span({
+                    classes(
+                        "ml-1", "px-1.5", "py-0.5",
+                        "text-[10px]", "font-medium",
+                        "bg-orange-100", "dark:bg-orange-900/40",
+                        "text-orange-700", "dark:text-orange-300",
+                        "rounded"
+                    )
+                    title("This coroutine was launched outside structured concurrency")
+                }) {
+                    Text("!")
+                }
+            }
         }
 
         // Children (collapsible)

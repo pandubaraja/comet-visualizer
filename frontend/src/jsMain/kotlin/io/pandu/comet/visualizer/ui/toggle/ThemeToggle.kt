@@ -12,9 +12,9 @@ fun ThemeToggle(isDark: Boolean, onChange: (Boolean) -> Unit) {
             "relative", "z-0",
             "inline-grid", "grid-cols-2", "gap-2",
             "rounded-full",
-            "bg-gray-950/10", "dark:bg-white/20",
+            "bg-neutral-200", "dark:bg-neutral-700/50",
             "p-1.5",
-            "text-gray-950", "dark:text-white"
+            "text-neutral-950", "dark:text-white"
         )
         onClick { onChange(!isDark) }
     }) {
@@ -22,9 +22,9 @@ fun ThemeToggle(isDark: Boolean, onChange: (Boolean) -> Unit) {
             "relative",
             "rounded-full",
             "p-0.5",
-            "bg-white", "ring-1", "ring-gray-950/20",
-            "text-gray-950",
-            "dark:bg-gray-100", "dark:text-gray-950", "dark:ring-transparent"
+            "bg-white", "ring-1", "ring-neutral-950/20",
+            "text-neutral-950",
+            "dark:bg-neutral-100", "dark:text-neutral-950", "dark:ring-transparent"
         )
 
         val defaultClasses = listOf(

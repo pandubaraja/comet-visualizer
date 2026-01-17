@@ -6,7 +6,7 @@ import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 
 @Composable
-fun GanttTooltipRow(label: String, value: String) {
+fun GanttTooltipRow(label: String, value: String, valueColor: String = "text-slate-200") {
     Div({
         classes(
             "flex", "justify-between", "gap-4",
@@ -14,6 +14,6 @@ fun GanttTooltipRow(label: String, value: String) {
         )
     }) {
         Span({}) { Text(label) }
-        Span({ classes("font-mono", "text-slate-200") }) { Text(value) }
+        Span({ classes("font-mono", valueColor) }) { Text(value) }
     }
 }

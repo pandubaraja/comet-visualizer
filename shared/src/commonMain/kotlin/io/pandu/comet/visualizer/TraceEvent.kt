@@ -16,5 +16,6 @@ data class TraceEvent(
     val dispatcher: String = "",
     val timestamp: Long,
     val sourceFile: String = "",
-    val lineNumber: Int = 0
+    val lineNumber: Int = 0,
+    val isUnstructured: Boolean = false
 )

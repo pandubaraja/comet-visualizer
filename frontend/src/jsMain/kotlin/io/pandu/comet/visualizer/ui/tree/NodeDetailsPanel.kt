@@ -34,8 +34,11 @@ fun NodeDetailsPanel(
         }
 
         // Status badge
-        Div({ classes("mb-4") }) {
+        Div({ classes("mb-4", "flex", "items-center", "gap-2", "flex-wrap") }) {
             StatusBadge(node.status)
+            if (node.isUnstructured) {
+                UnstructuredBadge()
+            }
         }
 
         // Operation name
@@ -140,5 +143,22 @@ private fun StatusBadge(status: TraceStatus) {
             }
         })
         Text(label)
+    }
+}
+
+@Composable
+private fun UnstructuredBadge() {
+    Div({
+        classes(
+            "inline-flex", "items-center", "gap-2",
+            "px-3", "py-1.5", "rounded-full",
+            "text-sm", "font-medium",
+            "bg-orange-100", "dark:bg-orange-900/30",
+            "text-orange-700", "dark:text-orange-300"
+        )
+        title("This coroutine was launched outside structured concurrency")
+    }) {
+        Span({ classes("w-2", "h-2", "rounded-full", "bg-orange-500") })
+        Text("Unstructured")
     }
 }

@@ -49,7 +49,7 @@ fun CometVisualizerContent(
         classes(
             "h-screen", "flex", "flex-col",
             "bg-slate-100", "dark:bg-neutral-900",
-            "text-slate-800", "dark:text-slate-200"
+            "text-slate-800", "dark:text-slate-200",
         )
     }) {
         // Header
@@ -57,16 +57,15 @@ fun CometVisualizerContent(
             classes(
                 "pb-4", "px-6", "pt-6", "flex-shrink-0",
                 "bg-white", "dark:bg-neutral-800",
-                "border-b", "border-slate-200", "dark:border-white/10",
                 "flex", "justify-between", "items-start"
             )
         }) {
             Div({}) {
                 Div({ classes("flex", "items-center", "gap-3") }) {
                     H1({
-                        classes("text-2xl", "font-bold", "title-gradient")
+                        classes("text-3xl", "font-bold", "title-gradient")
                     }) {
-                        Text("Comet Real-time Traces")
+                        Text("Comet Visualizer")
                     }
                     badge?.let {
                         Span({
@@ -81,7 +80,12 @@ fun CometVisualizerContent(
                         }
                     }
                 }
-                StatsBar(traceState.stats.value)
+                StatsBar(
+                    stats = traceState.stats.value,
+                    operations = traceState.operations,
+                    selectedOperation = traceState.selectedOperation.value,
+                    onOperationChange = { traceState.setOperationFilter(it) }
+                )
             }
             Div({ classes("flex", "gap-2", "items-center") }) {
                 ViewStyleToggle(currentViewStyle) { currentViewStyle = it }
@@ -112,6 +116,7 @@ fun CometVisualizerContent(
             // Main Content Area - Horizontal Tree Graph
             Div({
                 classes("flex-1", "overflow-auto")
+                classes("bg-neutral-100", "dark:bg-neutral-900")
             }) {
                 when (currentViewStyle) {
                     ViewStyle.TREE -> HorizontalTreeGraph(

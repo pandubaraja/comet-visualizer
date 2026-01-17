@@ -63,6 +63,8 @@ fun GanttBarRow(
             )
             if (isSelected) {
                 classes("ring-2", "ring-blue-500", "ring-offset-1", "z-[5]")
+            } else if (node.isUnstructured) {
+                classes("ring-2", "ring-orange-500", "ring-offset-1")
             }
             if (status == TraceStatus.RUNNING) {
                 classes("animate-pulse")

@@ -20,13 +20,12 @@ fun ViewStyleToggle(current: ViewStyle, onChange: (ViewStyle) -> Unit) {
         Div({
             classes(
                 "flex", "items-center", "gap-2",
-                "px-3", "py-2",
-                "bg-slate-200", "dark:bg-white/[0.06]",
-                "border", "border-slate-300", "dark:border-white/10",
+                "px-3", "py-2.5",
+                "bg-gray-950/10", "dark:bg-neutral-700/50",
                 "rounded-lg", "cursor-pointer",
-                "text-slate-700", "dark:text-slate-200",
+                "text-neutral-700", "dark:text-neutral-200",
                 "text-sm", "font-medium",
-                "hover:bg-slate-300", "dark:hover:bg-white/[0.08]",
+                "hover:bg-neutral-300", "dark:hover:bg-white/[0.08]",
                 "transition-colors"
             )
             onClick { isOpen = !isOpen }
@@ -42,8 +41,8 @@ fun ViewStyleToggle(current: ViewStyle, onChange: (ViewStyle) -> Unit) {
                 classes(
                     "absolute", "top-full", "left-0", "mt-1",
                     "min-w-full", "z-50",
-                    "bg-white", "dark:bg-slate-800",
-                    "border", "border-slate-300", "dark:border-white/10",
+                    "bg-white", "dark:bg-neutral-800",
+                    "border", "border-neutral-300", "dark:border-white/10",
                     "rounded-lg", "shadow-lg",
                     "overflow-hidden"
                 )
@@ -53,13 +52,13 @@ fun ViewStyleToggle(current: ViewStyle, onChange: (ViewStyle) -> Unit) {
                         classes(
                             "flex", "items-center", "gap-2",
                             "px-3", "py-2",
-                            "text-slate-700", "dark:text-slate-200",
+                            "text-neutral-700", "dark:text-neutral-200",
                             "text-sm", "cursor-pointer",
-                            "hover:bg-slate-100", "dark:hover:bg-white/[0.06]",
+                            "hover:bg-neutral-100", "dark:hover:bg-white/[0.06]",
                             "transition-colors"
                         )
                         if (style == current) {
-                            classes("bg-slate-100", "dark:bg-white/[0.06]")
+                            classes("bg-neutral-100", "dark:bg-white/[0.06]")
                         }
                         onClick {
                             onChange(style)

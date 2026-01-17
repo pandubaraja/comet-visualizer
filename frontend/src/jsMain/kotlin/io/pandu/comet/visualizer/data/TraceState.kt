@@ -14,8 +14,22 @@ class TraceState {
     private var startTime: Long? = null
 
     val traces = mutableStateMapOf<String, TraceNode>()
-    val timelineEvents = mutableStateListOf<TimelineEvent>()
     val stats = mutableStateOf(TraceStats())
+
+    // Duration tracking per operation name
+    private val durationsByOperation = mutableMapOf<String, MutableList<Double>>()
+    private val allDurations = mutableListOf<Double>()
+
+    // Available operations for filtering
+    val operations = mutableStateListOf<String>()
+
+    // Selected operation filter (null = all operations)
+    val selectedOperation = mutableStateOf<String?>(null)
+
+    fun setOperationFilter(operation: String?) {
+        selectedOperation.value = operation
+        recalculateLatencyStats()
+    }
 
     fun processEvent(event: TraceEvent) {
         if (startTime == null) {
@@ -35,7 +49,8 @@ class TraceState {
                     dispatcher = event.dispatcher,
                     startMs = startMs,
                     sourceFile = event.sourceFile,
-                    lineNumber = event.lineNumber
+                    lineNumber = event.lineNumber,
+                    isUnstructured = event.isUnstructured
                 )
                 traces[event.id] = node
 
@@ -48,7 +63,15 @@ class TraceState {
                     }
                 }
 
-                stats.value = stats.value.copy(running = stats.value.running + 1)
+                val currentStats = stats.value
+                stats.value = if (event.isUnstructured) {
+                    currentStats.copy(
+                        running = currentStats.running + 1,
+                        unstructured = currentStats.unstructured + 1
+                    )
+                } else {
+                    currentStats.copy(running = currentStats.running + 1)
+                }
             }
             else -> {
                 traces[event.id]?.let { node ->
@@ -71,29 +94,27 @@ class TraceState {
                     // Update stats
                     val currentStats = stats.value
                     stats.value = when (event.status) {
-                        "completed" -> currentStats.copy(
-                            running = currentStats.running - 1,
-                            completed = currentStats.completed + 1
-                        )
-                        "failed", "cancelled" -> currentStats.copy(
+                        "completed" -> {
+                            // Track duration for latency stats
+                            trackDuration(event.operation, event.durationMs)
+                            currentStats.copy(
+                                running = currentStats.running - 1,
+                                completed = currentStats.completed + 1,
+                                latency = calculateLatencyStats()
+                            )
+                        }
+                        "failed" -> currentStats.copy(
                             running = currentStats.running - 1,
                             failed = currentStats.failed + 1
+                        )
+                        "cancelled" -> currentStats.copy(
+                            running = currentStats.running - 1,
+                            cancelled = currentStats.cancelled + 1
                         )
                         else -> currentStats
                     }
                 }
             }
-        }
-
-        // Add to timeline
-        timelineEvents.add(0, TimelineEvent(
-            event = event,
-            timeOffset = formatTimeOffset(startMs)
-        ))
-
-        // Keep only last 50 events
-        while (timelineEvents.size > 50) {
-            timelineEvents.removeAt(timelineEvents.lastIndex)
         }
     }
 
@@ -101,5 +122,59 @@ class TraceState {
         return traces.values.filter { it.parentId == null || !traces.containsKey(it.parentId) }
     }
 
-    private fun formatTimeOffset(ms: Double): String = "+${ms.toLong()}ms"
+    private fun trackDuration(operation: String, durationMs: Double) {
+        // Add to all durations
+        allDurations.add(durationMs)
+
+        // Add to operation-specific durations
+        val operationDurations = durationsByOperation.getOrPut(operation) { mutableListOf() }
+        operationDurations.add(durationMs)
+
+        // Track unique operations
+        if (operation !in operations) {
+            operations.add(operation)
+        }
+    }
+
+    private fun recalculateLatencyStats() {
+        val currentStats = stats.value
+        stats.value = currentStats.copy(latency = calculateLatencyStats())
+    }
+
+    private fun calculateLatencyStats(): LatencyStats {
+        val durations = if (selectedOperation.value != null) {
+            durationsByOperation[selectedOperation.value] ?: emptyList()
+        } else {
+            allDurations
+        }
+
+        if (durations.isEmpty()) {
+            return LatencyStats()
+        }
+
+        val sorted = durations.sorted()
+        val count = sorted.size
+
+        return LatencyStats(
+            min = sorted.first(),
+            max = sorted.last(),
+            mean = sorted.average(),
+            p50 = percentile(sorted, 50.0),
+            p90 = percentile(sorted, 90.0),
+            p99 = percentile(sorted, 99.0),
+            count = count
+        )
+    }
+
+    private fun percentile(sortedData: List<Double>, percentile: Double): Double {
+        if (sortedData.isEmpty()) return 0.0
+        if (sortedData.size == 1) return sortedData[0]
+
+        val index = (percentile / 100.0) * (sortedData.size - 1)
+        val lower = sortedData[index.toInt()]
+        val upper = sortedData[minOf(index.toInt() + 1, sortedData.size - 1)]
+        val fraction = index - index.toInt()
+
+        return lower + (upper - lower) * fraction
+    }
 }
