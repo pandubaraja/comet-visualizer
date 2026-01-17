@@ -5,7 +5,8 @@ Real-time trace visualization for Kotlin coroutines. A web-based UI that display
 ## Features
 
 - **Tree View**: Hierarchical display of coroutine traces with parent-child relationships
-- **Gantt Chart**: Timeline visualization with zoom support (Ctrl+Scroll)
+- **Gantt Chart**: Timeline visualization with mouse-centered zoom (Ctrl+Scroll)
+- **Source Location**: Display file and line number where coroutines were created
 - **Real-time Updates**: Live streaming via Server-Sent Events (SSE)
 - **Dark/Light Mode**: Toggle between themes
 - **Hot Reload**: Development mode with live frontend updates
@@ -43,7 +44,9 @@ val event = TraceEvent(
     operation = "my-operation",
     status = "running",
     dispatcher = "Dispatchers.Default",
-    timestamp = System.nanoTime()
+    timestamp = System.nanoTime(),
+    sourceFile = "MyFile.kt",    // Optional: source file name
+    lineNumber = 42              // Optional: line number
 )
 server.sendEvent(Json.encodeToString(event))
 
@@ -55,7 +58,8 @@ server.stop()
 
 - **Tree/Gantt Toggle**: Switch between visualization modes
 - **Theme Toggle**: Switch between dark and light mode
-- **Gantt Zoom**: Ctrl + Scroll (or Cmd + Scroll on Mac)
+- **Gantt Zoom**: Ctrl + Scroll (or Cmd + Scroll on Mac) - zooms centered on mouse pointer
+- **Node Details**: Click on any node to view details including source location
 
 ## Tech Stack
 
@@ -63,3 +67,15 @@ server.stop()
 - Compose for Web
 - Tailwind CSS
 - Server-Sent Events (SSE)
+
+## License
+
+```
+Copyright 2025
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+```
