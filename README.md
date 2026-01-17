@@ -2,6 +2,8 @@
 
 Real-time trace visualization for Kotlin coroutines. A web-based UI that displays coroutine execution traces with tree and Gantt chart views.
 
+![Comet Visualizer](docs/images/comet.png)
+
 ## Features
 
 - **Tree View**: Hierarchical display of coroutine traces with parent-child relationships
