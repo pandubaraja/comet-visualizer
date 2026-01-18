@@ -11,7 +11,6 @@ Real-time trace visualization for Kotlin coroutines. A web-based UI that display
 - **Source Location**: Display file and line number where coroutines were created
 - **Real-time Updates**: Live streaming via Server-Sent Events (SSE)
 - **Dark/Light Mode**: Toggle between themes
-- **Hot Reload**: Development mode with live frontend updates
 
 ## Project Structure
 
@@ -58,7 +57,7 @@ server.stop()
 
 ## Controls
 
-- **Tree/Gantt Toggle**: Switch between visualization modes
+- **Tree/Gantt/Performance Toggle**: Switch between visualization modes
 - **Theme Toggle**: Switch between dark and light mode
 - **Gantt Zoom**: Ctrl + Scroll (or Cmd + Scroll on Mac) - zooms centered on mouse pointer
 - **Node Details**: Click on any node to view details including source location

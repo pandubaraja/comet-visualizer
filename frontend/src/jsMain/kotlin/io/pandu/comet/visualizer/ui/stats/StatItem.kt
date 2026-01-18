@@ -9,7 +9,7 @@ import org.jetbrains.compose.web.dom.Text
 @Composable
 fun StatItem(dotColor: String, count: Int, label: String) {
     Div({ classes(
-        "bg-stone-200/50", "dark:bg-stone-700",
+        "bg-stone-300/60", "dark:bg-stone-700",
         "rounded-md",
         "shadow-md",
         "text-center"
@@ -22,8 +22,8 @@ fun StatItem(dotColor: String, count: Int, label: String) {
                 "justify-center",
                 "gap-x-1",
                 "text-sm/6",
-                "font-normal",
-                "text-neutral-500", "dark:text-neutral-400",
+                "font-semibold",
+                "text-neutral-700", "dark:text-neutral-400",
             )
         }) {
             StatIcon(dotColor)

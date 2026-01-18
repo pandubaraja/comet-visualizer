@@ -24,20 +24,11 @@ object CometStyles : StyleSheet() {
         ".gantt-bar-cancelled" style {
             property("background", "linear-gradient(90deg, #f59e0b, #fbbf24)")
         }
-
-        // Title gradient
-        ".title-gradient" style {
-            property("background", "linear-gradient(90deg, #60a5fa, #a78bfa)")
-            property("-webkit-background-clip", "text")
-            property("-webkit-text-fill-color", "transparent")
-            property("background-clip", "text")
-        }
-
         // Tree graph grid pattern (light mode)
         ".tree-graph-grid" style {
             property(
                 "background-image",
-                """url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M24 0v24M0 24h24' stroke='%23e2e8f0' stroke-width='1'/%3E%3C/svg%3E")"""
+                """url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M24 0v24M0 24h24' stroke='%23c7cbd1' stroke-width='1'/%3E%3C/svg%3E")"""
             )
             property("background-size", "24px 24px")
         }

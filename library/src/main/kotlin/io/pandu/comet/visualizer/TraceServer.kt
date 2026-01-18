@@ -67,6 +67,18 @@ class TraceServer(
             server.createContext("/comet-visualizer.js.map") { exchange ->
                 serveResource(exchange, "/static/comet-visualizer.js.map", "application/json")
             }
+
+            // Serve icons
+            server.createContext("/icons/") { exchange ->
+                val path = exchange.requestURI.path
+                val contentType = when {
+                    path.endsWith(".png") -> "image/png"
+                    path.endsWith(".ico") -> "image/x-icon"
+                    path.endsWith(".svg") -> "image/svg+xml"
+                    else -> "application/octet-stream"
+                }
+                serveResource(exchange, "/static$path", contentType)
+            }
         }
 
         // SSE endpoint

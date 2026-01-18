@@ -12,7 +12,7 @@ fun ThemeToggle(isDark: Boolean, onChange: (Boolean) -> Unit) {
             "relative", "z-0",
             "inline-grid", "grid-cols-2", "gap-2",
             "rounded-full",
-            "bg-stone-200/50", "dark:bg-neutral-700",
+            "bg-stone-300/60", "dark:bg-neutral-700",
             "p-1.5",
             "text-neutral-950", "dark:text-white"
         )

@@ -31,7 +31,7 @@ fun CometVisualizerContent(
     traceState: TraceState,
     badge: String? = null
 ) {
-    var currentViewStyle by remember { mutableStateOf(ViewStyle.TREE) }
+    var currentViewStyle by remember { mutableStateOf(ViewStyle.GANTT) }
     var isDarkTheme by remember { mutableStateOf(false) }
     var selectedNode by remember { mutableStateOf<TraceNode?>(null) }
 
@@ -50,7 +50,6 @@ fun CometVisualizerContent(
     Div({
         classes(
             "h-screen", "flex", "flex-col",
-            "bg-neutral-100", "dark:bg-neutral-900",
             "text-neutral-800", "dark:text-neutral-200",
         )
     }) {
@@ -58,19 +57,19 @@ fun CometVisualizerContent(
         Header({
             classes(
                 "pb-6", "px-6", "pt-6", "flex-shrink-0",
-                "bg-white", "dark:bg-neutral-800",
+                "bg-zinc-100", "dark:bg-neutral-800",
                 "flex", "justify-between", "items-start",
-                "shadow-md", "dark:shadow-neutral-950/50", "z-10"
+                "shadow-md", "dark:shadow-neutral-950/50", "z-20"
             )
         }) {
             Div({}) {
                 Div({ classes("flex", "items-center", "gap-3") }) {
                     Img("/icons/comet.png") {
-                        classes("w-10", "h-10")
+                        classes("w-14", "h-14")
                         attr("alt", "Comet")
                     }
                     H1({
-                        classes("text-3xl", "font-bold", "title-gradient")
+                        classes("text-3xl", "font-bold")
                     }) {
                         Text("Comet Visualizer")
                     }
@@ -103,9 +102,9 @@ fun CometVisualizerContent(
             Div({
                 classes(
                     "w-64", "flex-shrink-0",
-                    "bg-white", "dark:bg-neutral-800",
+                    "bg-zinc-100", "dark:bg-neutral-800",
                     "overflow-y-auto",
-                    "shadow-md", "dark:shadow-neutral-950/50", "z-10"
+                    "shadow-md", "dark:shadow-neutral-950/50", "z-20"
                 )
             }) {
                 TreeView(
@@ -118,7 +117,7 @@ fun CometVisualizerContent(
             // Main Content Area - Horizontal Tree Graph
             Div({
                 classes("flex-1", "overflow-auto")
-                classes("bg-neutral-100", "dark:bg-neutral-900")
+                classes("bg-neutral-200/80", "dark:bg-neutral-900")
             }) {
                 when (currentViewStyle) {
                     ViewStyle.TREE -> HorizontalTreeGraph(
@@ -140,7 +139,7 @@ fun CometVisualizerContent(
                 Div({
                     classes(
                         "w-80", "flex-shrink-0",
-                        "bg-white", "dark:bg-neutral-800",
+                        "bg-stone-50", "dark:bg-neutral-800",
                         "overflow-y-auto",
                         "shadow-md", "dark:shadow-neutral-950/50", "z-10"
                     )

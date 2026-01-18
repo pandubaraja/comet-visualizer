@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.pandu.comet.visualizer.TraceNode
 import io.pandu.comet.visualizer.data.TraceState
+import io.pandu.comet.visualizer.ui.EmptyView
 import kotlinx.browser.document
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Span
@@ -26,7 +27,7 @@ fun GanttView(
 ) {
     var hoveredNode by remember { mutableStateOf<TraceNode?>(null) }
     var tooltipPosition by remember { mutableStateOf(Pair(0, 0)) }
-    var scale by remember { mutableStateOf(10.0) } // pixels per ms
+    var scale by remember { mutableStateOf(1.0) } // pixels per ms
     var timelineElement by remember { mutableStateOf<Element?>(null) }
 
     val allNodes = traceState.traces.values.toList()
@@ -63,141 +64,85 @@ fun GanttView(
         }
     }
 
-    Div({
-        classes(
-            "flex", "flex-col",
-            "h-[calc(100vh-140px)]",
-            "overflow-hidden"
-        )
-        ref { element ->
-            val handler: (Event) -> Unit = { event ->
-                val wheelEvent = event as WheelEvent
-                if (wheelEvent.ctrlKey || wheelEvent.metaKey) {
-                    event.preventDefault()
-                    event.stopPropagation()
-
-                    timelineElement?.let { timeline ->
-                        // Get mouse X position relative to timeline viewport
-                        val rect = timeline.getBoundingClientRect()
-                        val mouseX = wheelEvent.clientX - rect.left
-
-                        // Calculate the time value under the mouse pointer
-                        val timeAtMouse = (timeline.scrollLeft + mouseX) / scale
-
-                        // Apply zoom
-                        val delta = if (wheelEvent.deltaY < 0) 1.05 else 0.95
-                        val newScale = min(100.0, max(0.1, scale * delta))
-
-                        // Adjust scroll so the same time stays under the mouse
-                        val newScrollLeft = timeAtMouse * newScale - mouseX
-
-                        scale = newScale
-                        timeline.scrollLeft = newScrollLeft.coerceAtLeast(0.0)
-                    }
-                }
-            }
-            element.addEventListener("wheel", handler, js("{ passive: false }"))
-            onDispose {
-                element.removeEventListener("wheel", handler)
-            }
-        }
-    }) {
-        // Scale info
+    if(orderedNodes.isEmpty()) {
+        EmptyView("Coroutine Timeline will appear here")
+    } else {
         Div({
             classes(
-                "px-3", "py-2",
-                "text-xs", "text-slate-500",
-                "border-b", "border-slate-200", "dark:border-white/10",
-                "flex", "justify-between", "items-center"
+                "flex", "flex-col",
+                "h-[calc(100vh-140px)]",
+                "overflow-hidden"
             )
-        }) {
-            Span({}) { Text("Timeline: 0ms - ${maxTime.toInt()}ms") }
-            Span({ classes("text-[0.7rem]", "opacity-60") }) {
-                Text("Ctrl + Scroll to zoom")
-            }
-        }
+            ref { element ->
+                val handler: (Event) -> Unit = { event ->
+                    val wheelEvent = event as WheelEvent
+                    if (wheelEvent.ctrlKey || wheelEvent.metaKey) {
+                        event.preventDefault()
+                        event.stopPropagation()
 
-        // Content - Timeline only (labels are in sidebar)
-        Div({
-            classes("flex-1", "overflow-auto")
-            ref { el ->
-                timelineElement = el
-                onDispose { }
-            }
-        }) {
-            // Time header
-            Div({
-                classes(
-                    "border-b", "border-slate-200", "dark:border-white/10",
-                    "bg-slate-50", "dark:bg-white/[0.02]",
-                    "sticky", "top-0", "z-10",
-                    "min-h-[32px]", "relative"
-                )
-                style { property("width", "${(maxTime + 50) * scale}px") }
-            }) {
-                val step = getTimeStep(maxTime, scale)
-                var t = 0.0
-                while (t <= maxTime + 50) {
-                    Div({
-                        classes(
-                            "absolute", "top-0", "bottom-0",
-                            "border-l", "border-slate-200", "dark:border-white/10",
-                            "px-3", "py-2",
-                            "text-xs", "font-semibold", "text-slate-500",
-                            "font-mono", "whitespace-nowrap"
-                        )
-                        style { property("left", "${t * scale}px") }
-                    }) {
-                        Text("${t.toInt()}ms")
+                        timelineElement?.let { timeline ->
+                            // Get mouse X position relative to timeline viewport
+                            val rect = timeline.getBoundingClientRect()
+                            val mouseX = wheelEvent.clientX - rect.left
+
+                            // Calculate the time value under the mouse pointer
+                            val timeAtMouse = (timeline.scrollLeft + mouseX) / scale
+
+                            // Apply zoom
+                            val delta = if (wheelEvent.deltaY < 0) 1.05 else 0.95
+                            val newScale = min(100.0, max(0.1, scale * delta))
+
+                            // Adjust scroll so the same time stays under the mouse
+                            val newScrollLeft = timeAtMouse * newScale - mouseX
+
+                            scale = newScale
+                            timeline.scrollLeft = newScrollLeft.coerceAtLeast(0.0)
+                        }
                     }
-                    t += step
+                }
+                element.addEventListener("wheel", handler, js("{ passive: false }"))
+                onDispose {
+                    element.removeEventListener("wheel", handler)
                 }
             }
-
-            // Bars
-            if (orderedNodes.isEmpty()) {
+        }) {
+            // Content - Timeline only (labels are in sidebar)
+            Div({
+                classes("flex-1", "overflow-auto")
+                ref { el ->
+                    timelineElement = el
+                    onDispose { }
+                }
+            }) {
+                // Time header
                 Div({
                     classes(
-                        "flex", "flex-col", "items-center", "justify-center",
-                        "py-16", "gap-4"
+                        "border-b", "border-neutral-200", "dark:border-white/10",
+                        "shadow-md",
+                        "bg-neutral-50", "dark:bg-white/[0.02]",
+                        "sticky", "top-0", "z-10",
+                        "min-h-[32px]", "relative"
                     )
+                    style { property("width", "${(maxTime + 50) * scale}px") }
                 }) {
-                    Div({
-                        classes(
-                            "w-14", "h-14", "rounded-full",
-                            "bg-slate-200", "dark:bg-neutral-700",
-                            "flex", "items-center", "justify-center",
-                            "animate-pulse"
-                        )
-                    }) {
-                        Span({
-                            classes("w-7", "h-7", "text-slate-400", "dark:text-neutral-500")
-                            ref { element ->
-                                element.innerHTML = """<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>"""
-                                onDispose { }
-                            }
-                        })
-                    }
-                    Div({ classes("text-center") }) {
+                    val step = getTimeStep(maxTime, scale)
+                    var t = 0.0
+                    while (t <= maxTime + 50) {
                         Div({
                             classes(
-                                "text-base", "font-medium",
-                                "text-slate-600", "dark:text-neutral-300"
+                                "absolute", "top-0", "bottom-0",
+                                "border-l", "border-neutral-300", "dark:border-white/10",
+                                "px-3", "py-2",
+                                "text-xs", "font-normal", "text-neutral-500"
                             )
+                            style { property("left", "${t * scale}px") }
                         }) {
-                            Text("Waiting for traces")
+                            Text("${t.toInt()} ms")
                         }
-                        Div({
-                            classes(
-                                "text-sm", "mt-1",
-                                "text-slate-400", "dark:text-neutral-500"
-                            )
-                        }) {
-                            Text("Timeline will appear here")
-                        }
+                        t += step
                     }
                 }
-            } else {
+
                 Div({
                     classes("relative")
                     style { property("width", "${(maxTime + 50) * scale}px") }
@@ -227,7 +172,7 @@ fun GanttView(
                             Div({
                                 classes(
                                     "absolute", "top-0", "bottom-0",
-                                    "border-l", "border-slate-300/50", "dark:border-white/5"
+                                    "border-l", "border-neutral-300", "dark:border-white/5"
                                 )
                                 style { property("left", "${t * scale}px") }
                             })

@@ -38,13 +38,13 @@ fun GanttBarRow(
         id("gantt-bar-${node.id}")
         classes(
             "min-h-[32px]", "relative",
-            "border-b", "border-slate-200", "dark:border-white/10",
+            "border-b", "border-neutral-300", "dark:border-white/10",
             "transition-colors", "duration-150"
         )
         if (isSelected) {
             classes("bg-blue-100", "dark:bg-blue-900/30")
         } else {
-            classes("hover:bg-slate-100", "dark:hover:bg-white/[0.06]")
+            classes("hover:bg-neutral-300/50", "dark:hover:bg-white/[0.06]")
         }
     }) {
         Div({

@@ -21,7 +21,7 @@ fun ViewStyleToggle(current: ViewStyle, onChange: (ViewStyle) -> Unit) {
             classes(
                 "flex", "items-center", "gap-2",
                 "px-3", "py-2.5",
-                "bg-stone-200/50", "dark:bg-neutral-700",
+                "bg-stone-300/60", "dark:bg-neutral-700",
                 "rounded-lg", "cursor-pointer",
                 "text-neutral-700", "dark:text-neutral-200",
                 "text-sm", "font-medium",
