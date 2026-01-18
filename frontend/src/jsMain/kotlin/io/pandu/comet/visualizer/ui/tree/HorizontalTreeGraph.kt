@@ -119,11 +119,44 @@ fun HorizontalTreeGraph(
     if (rootNodes.isEmpty()) {
         Div({
             classes(
-                "flex", "items-center", "justify-center",
-                "h-full", "text-slate-400", "dark:text-slate-500"
+                "flex", "flex-col", "items-center", "justify-center",
+                "h-full", "gap-4"
             )
         }) {
-            Text("Waiting for traces...")
+            Div({
+                classes(
+                    "w-16", "h-16", "rounded-full",
+                    "bg-slate-200", "dark:bg-neutral-700",
+                    "flex", "items-center", "justify-center",
+                    "animate-pulse"
+                )
+            }) {
+                Span({
+                    classes("w-8", "h-8", "text-slate-400", "dark:text-neutral-500")
+                    ref { element ->
+                        element.innerHTML = """<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>"""
+                        onDispose { }
+                    }
+                })
+            }
+            Div({ classes("text-center") }) {
+                Div({
+                    classes(
+                        "text-lg", "font-medium",
+                        "text-slate-600", "dark:text-neutral-300"
+                    )
+                }) {
+                    Text("Waiting for traces")
+                }
+                Div({
+                    classes(
+                        "text-sm", "mt-1",
+                        "text-slate-400", "dark:text-neutral-500"
+                    )
+                }) {
+                    Text("Coroutine traces will appear here")
+                }
+            }
         }
         return
     }
@@ -209,7 +242,7 @@ fun HorizontalTreeGraph(
         }
 
         Div({
-            classes("relative")
+            classes("relative", "tree-graph-grid")
             style {
                 property("min-width", "${(maxX * zoom).roundToInt()}px")
                 property("min-height", "${(maxY * zoom).roundToInt()}px")
@@ -242,7 +275,7 @@ private fun ConnectionLine(conn: Connection) {
 
     // Horizontal line from node to midpoint
     Div({
-        classes("absolute", "bg-slate-300", "dark:bg-slate-600")
+        classes("absolute", "bg-slate-400", "dark:bg-slate-500")
         style {
             property("left", "${conn.fromX}px")
             property("top", "${conn.fromY}px")
@@ -256,7 +289,7 @@ private fun ConnectionLine(conn: Connection) {
     val maxY = maxOf(conn.fromY, conn.toY)
     if (conn.fromY != conn.toY) {
         Div({
-            classes("absolute", "bg-slate-300", "dark:bg-slate-600")
+            classes("absolute", "bg-slate-400", "dark:bg-slate-500")
             style {
                 property("left", "${midX}px")
                 property("top", "${minY}px")
@@ -268,7 +301,7 @@ private fun ConnectionLine(conn: Connection) {
 
     // Horizontal line from midpoint to child
     Div({
-        classes("absolute", "bg-slate-300", "dark:bg-slate-600")
+        classes("absolute", "bg-slate-400", "dark:bg-slate-500")
         style {
             property("left", "${midX}px")
             property("top", "${conn.toY}px")
@@ -316,12 +349,12 @@ private fun TreeGraphNode(
             "px-3", "py-2",
             "cursor-pointer",
             "transition-all", "duration-200",
-            "hover:shadow-md"
+            "hover:shadow-lg"
         )
         if (isSelected) {
-            classes("shadow-lg", "ring-2", "ring-blue-500", "ring-offset-2")
+            classes("shadow-lg", "ring-2", "ring-blue-500", "ring-offset-2", "dark:ring-offset-neutral-900")
         } else {
-            classes("shadow-sm")
+            classes("shadow-md", "dark:shadow-neutral-950/50")
         }
         style {
             property("left", "${x}px")

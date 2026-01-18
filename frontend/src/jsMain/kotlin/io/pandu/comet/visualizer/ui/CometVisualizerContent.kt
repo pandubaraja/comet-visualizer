@@ -22,6 +22,7 @@ import org.jetbrains.compose.web.css.Style
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.Header
+import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 
@@ -49,21 +50,25 @@ fun CometVisualizerContent(
     Div({
         classes(
             "h-screen", "flex", "flex-col",
-            "bg-slate-100", "dark:bg-neutral-900",
-            "text-slate-800", "dark:text-slate-200",
+            "bg-neutral-100", "dark:bg-neutral-900",
+            "text-neutral-800", "dark:text-neutral-200",
         )
     }) {
         // Header
         Header({
             classes(
-                "pb-4", "px-6", "pt-6", "flex-shrink-0",
+                "pb-6", "px-6", "pt-6", "flex-shrink-0",
                 "bg-white", "dark:bg-neutral-800",
                 "flex", "justify-between", "items-start",
-                "shadow-sm", "dark:shadow-neutral-950/50", "z-10"
+                "shadow-md", "dark:shadow-neutral-950/50", "z-10"
             )
         }) {
             Div({}) {
                 Div({ classes("flex", "items-center", "gap-3") }) {
+                    Img("/icons/comet.png") {
+                        classes("w-10", "h-10")
+                        attr("alt", "Comet")
+                    }
                     H1({
                         classes("text-3xl", "font-bold", "title-gradient")
                     }) {

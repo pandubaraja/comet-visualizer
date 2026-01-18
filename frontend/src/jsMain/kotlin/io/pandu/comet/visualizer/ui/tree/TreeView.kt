@@ -25,7 +25,7 @@ fun TreeView(
         // Search input
         Div({
             classes(
-                "p-2", "border-b", "border-slate-200", "dark:border-white/10"
+                "px-2"
             )
         }) {
             Div({
@@ -33,12 +33,9 @@ fun TreeView(
                     "flex", "items-center", "gap-2",
                     "px-2", "py-1.5",
                     "bg-slate-100", "dark:bg-white/5",
-                    "rounded", "text-sm"
+                    "rounded-full", "text-sm"
                 )
             }) {
-                Span({ classes("text-slate-400", "text-xs") }) {
-                    Text("\uD83D\uDD0D")
-                }
                 TextInput(searchQuery) {
                     classes(
                         "flex-1", "bg-transparent", "outline-none",
@@ -69,8 +66,36 @@ fun TreeView(
         Div({ classes("flex-1", "overflow-y-auto", "py-2", "px-2") }) {
             val rootNodes = traceState.getRootNodes()
             if (rootNodes.isEmpty()) {
-                Div({ classes("text-center", "py-8", "text-slate-400", "text-sm") }) {
-                    Text("Waiting for traces...")
+                Div({
+                    classes(
+                        "flex", "flex-col", "items-center", "justify-center",
+                        "py-8", "gap-3"
+                    )
+                }) {
+                    Div({
+                        classes(
+                            "w-10", "h-10", "rounded-full",
+                            "bg-slate-200", "dark:bg-neutral-700",
+                            "flex", "items-center", "justify-center",
+                            "animate-pulse"
+                        )
+                    }) {
+                        Span({
+                            classes("w-5", "h-5", "text-slate-400", "dark:text-neutral-500")
+                            ref { element ->
+                                element.innerHTML = """<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>"""
+                                onDispose { }
+                            }
+                        })
+                    }
+                    Div({
+                        classes(
+                            "text-xs", "text-center",
+                            "text-slate-400", "dark:text-neutral-500"
+                        )
+                    }) {
+                        Text("Waiting for traces")
+                    }
                 }
             } else {
                 val matchingNodeIds = if (searchQuery.isNotEmpty()) {
