@@ -26,7 +26,10 @@ fun TreeNodeItem(
     }
 
     val status = node.status
-    val children = node.children
+    // Look up children by ID from the map and sort by startMs for stable ordering
+    val children = node.childIds
+        .mapNotNull { allNodes[it] }
+        .sortedBy { it.startMs }
     val hasChildren = children.isNotEmpty()
     var isExpanded by remember { mutableStateOf(true) }
     val isSelected = node.id == selectedNodeId
@@ -129,9 +132,8 @@ fun TreeNodeItem(
         if (hasChildren && isExpanded) {
             Div({ classes("ml-4", "border-l", "border-slate-200", "dark:border-white/10") }) {
                 children.forEach { child ->
-                    val updatedChild = allNodes[child.id] ?: child
                     TreeNodeItem(
-                        node = updatedChild,
+                        node = child,
                         allNodes = allNodes,
                         selectedNodeId = selectedNodeId,
                         onNodeSelect = onNodeSelect,

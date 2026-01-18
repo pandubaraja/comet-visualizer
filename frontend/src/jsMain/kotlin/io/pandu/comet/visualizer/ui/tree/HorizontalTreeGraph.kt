@@ -51,7 +51,10 @@ private fun calculateTreeLayout(
         }
         visited.add(node.id)
 
-        val children = node.children.mapNotNull { allNodes[it.id] }
+        // Look up children by ID from the map and sort by startMs for stable ordering
+        val children = node.childIds
+            .mapNotNull { allNodes[it] }
+            .sortedBy { it.startMs }
         val x = level * (NODE_WIDTH + HORIZONTAL_GAP)
 
         if (children.isEmpty()) {
@@ -113,8 +116,11 @@ fun HorizontalTreeGraph(
 ) {
     var zoom by remember { mutableStateOf(1.0) }
 
+    // Create stable snapshot sorted by startMs to prevent layout jumping
     val traces = traceState.traces.toMap()
-    val rootNodes = traces.values.filter { it.parentId == null || !traces.containsKey(it.parentId) }
+    val rootNodes = traces.values
+        .filter { it.parentId == null || !traces.containsKey(it.parentId) }
+        .sortedBy { it.startMs }
 
     if (rootNodes.isEmpty()) {
         Div({

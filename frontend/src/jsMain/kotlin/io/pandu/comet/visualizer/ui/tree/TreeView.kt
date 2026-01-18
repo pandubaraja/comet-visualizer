@@ -130,10 +130,12 @@ private fun findMatchingNodes(
         val nodeMatches = node.operation.lowercase().contains(query)
         var hasMatchingChild = false
 
-        node.children.forEach { child ->
-            val updatedChild = allNodes[child.id] ?: child
-            if (searchNode(updatedChild)) {
-                hasMatchingChild = true
+        // Look up children by ID from the map
+        node.childIds.forEach { childId ->
+            allNodes[childId]?.let { child ->
+                if (searchNode(child)) {
+                    hasMatchingChild = true
+                }
             }
         }
 

@@ -253,12 +253,14 @@ private fun orderNodes(traceState: TraceState): List<Pair<TraceNode, Int>> {
         if (node.id in processed) return
         processed.add(node.id)
         result.add(node to depth)
-        node.children.sortedBy { it.startMs }.forEach { child ->
-            traceState.traces[child.id]?.let { addNodeWithChildren(it, depth + 1) }
-        }
+        // Look up children by ID from the map and sort by startMs
+        node.childIds
+            .mapNotNull { traceState.traces[it] }
+            .sortedBy { it.startMs }
+            .forEach { child -> addNodeWithChildren(child, depth + 1) }
     }
 
-    traceState.getRootNodes().sortedBy { it.startMs }.forEach { addNodeWithChildren(it, 0) }
+    traceState.getRootNodes().forEach { addNodeWithChildren(it, 0) }
     return result
 }
 

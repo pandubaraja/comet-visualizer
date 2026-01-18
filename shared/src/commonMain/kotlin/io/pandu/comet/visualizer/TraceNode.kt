@@ -2,6 +2,7 @@ package io.pandu.comet.visualizer
 
 /**
  * Represents a trace node in the UI with computed properties.
+ * Children are stored as IDs only to avoid stale copies.
  */
 data class TraceNode(
     val id: String,
@@ -14,5 +15,5 @@ data class TraceNode(
     val sourceFile: String = "",
     val lineNumber: Int = 0,
     val isUnstructured: Boolean = false,
-    val children: MutableList<TraceNode> = mutableListOf()
+    val childIds: List<String> = emptyList()
 )

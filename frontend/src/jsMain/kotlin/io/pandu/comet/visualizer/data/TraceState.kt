@@ -54,12 +54,12 @@ class TraceState {
                 )
                 traces[event.id] = node
 
-                // Update parent's children - replace parent to trigger recomposition
+                // Update parent's childIds - only store the ID, not the full node
                 event.parentId?.let { parentId ->
                     traces[parentId]?.let { parent ->
-                        val newChildren = parent.children.toMutableList()
-                        newChildren.add(node)
-                        traces[parentId] = parent.copy(children = newChildren)
+                        if (event.id !in parent.childIds) {
+                            traces[parentId] = parent.copy(childIds = parent.childIds + event.id)
+                        }
                     }
                 }
 
@@ -81,15 +81,8 @@ class TraceState {
                     )
                     traces[event.id] = updatedNode
 
-                    // Update in parent's children list - replace parent to trigger recomposition
-                    node.parentId?.let { parentId ->
-                        traces[parentId]?.let { parent ->
-                            val newChildren = parent.children.map { child ->
-                                if (child.id == event.id) updatedNode else child
-                            }.toMutableList()
-                            traces[parentId] = parent.copy(children = newChildren)
-                        }
-                    }
+                    // No need to update parent - we only store IDs, and children are
+                    // always looked up fresh from the traces map
 
                     // Update stats
                     val currentStats = stats.value
@@ -119,7 +112,9 @@ class TraceState {
     }
 
     fun getRootNodes(): List<TraceNode> {
-        return traces.values.filter { it.parentId == null || !traces.containsKey(it.parentId) }
+        return traces.values
+            .filter { it.parentId == null || !traces.containsKey(it.parentId) }
+            .sortedBy { it.startMs }
     }
 
     fun getOperationStats(): Map<String, LatencyStats> {

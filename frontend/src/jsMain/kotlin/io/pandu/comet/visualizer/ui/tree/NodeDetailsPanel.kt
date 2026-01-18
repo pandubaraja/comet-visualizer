@@ -62,8 +62,8 @@ fun NodeDetailsPanel(
         }
 
         // Children count
-        if (node.children.isNotEmpty()) {
-            DetailRow("Children", "${node.children.size}")
+        if (node.childIds.isNotEmpty()) {
+            DetailRow("Children", "${node.childIds.size}")
         }
 
         // Source location
