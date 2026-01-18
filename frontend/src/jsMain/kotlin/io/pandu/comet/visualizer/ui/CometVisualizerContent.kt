@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import io.pandu.comet.visualizer.TraceNode
 import io.pandu.comet.visualizer.data.TraceState
 import io.pandu.comet.visualizer.ui.gantt.GanttView
+import io.pandu.comet.visualizer.ui.performance.PerformanceView
 import io.pandu.comet.visualizer.ui.stats.StatsBar
 import io.pandu.comet.visualizer.ui.toggle.ThemeToggle
 import io.pandu.comet.visualizer.ui.toggle.ViewStyle
@@ -57,7 +58,8 @@ fun CometVisualizerContent(
             classes(
                 "pb-4", "px-6", "pt-6", "flex-shrink-0",
                 "bg-white", "dark:bg-neutral-800",
-                "flex", "justify-between", "items-start"
+                "flex", "justify-between", "items-start",
+                "shadow-sm", "dark:shadow-neutral-950/50", "z-10"
             )
         }) {
             Div({}) {
@@ -80,12 +82,7 @@ fun CometVisualizerContent(
                         }
                     }
                 }
-                StatsBar(
-                    stats = traceState.stats.value,
-                    operations = traceState.operations,
-                    selectedOperation = traceState.selectedOperation.value,
-                    onOperationChange = { traceState.setOperationFilter(it) }
-                )
+                StatsBar(stats = traceState.stats.value)
             }
             Div({ classes("flex", "gap-2", "items-center") }) {
                 ViewStyleToggle(currentViewStyle) { currentViewStyle = it }
@@ -102,8 +99,8 @@ fun CometVisualizerContent(
                 classes(
                     "w-64", "flex-shrink-0",
                     "bg-white", "dark:bg-neutral-800",
-                    "border-r", "border-slate-200", "dark:border-white/10",
-                    "overflow-y-auto"
+                    "overflow-y-auto",
+                    "shadow-md", "dark:shadow-neutral-950/50", "z-10"
                 )
             }) {
                 TreeView(
@@ -129,6 +126,7 @@ fun CometVisualizerContent(
                         selectedNodeId = selectedNode?.id,
                         onNodeSelect = { node -> selectedNode = node }
                     )
+                    ViewStyle.PERFORMANCE -> PerformanceView(traceState = traceState)
                 }
             }
 
@@ -138,8 +136,8 @@ fun CometVisualizerContent(
                     classes(
                         "w-80", "flex-shrink-0",
                         "bg-white", "dark:bg-neutral-800",
-                        "border-l", "border-slate-200", "dark:border-white/10",
-                        "overflow-y-auto"
+                        "overflow-y-auto",
+                        "shadow-md", "dark:shadow-neutral-950/50", "z-10"
                     )
                 }) {
                     NodeDetailsPanel(

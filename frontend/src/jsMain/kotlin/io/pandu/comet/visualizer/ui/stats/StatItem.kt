@@ -9,15 +9,23 @@ import org.jetbrains.compose.web.dom.Text
 @Composable
 fun StatItem(dotColor: String, count: Int, label: String) {
     Div({ classes(
-        "pt-4", "pr-10",
+        "p-2",
+        "bg-neutral-100", "dark:bg-neutral-700",
+        "rounded-xl"
     ) }) {
-        P ({
+        Div ({
             classes(
+                "flex",
+                "items-center",
+                "gap-x-2",
                 "text-sm/6",
                 "font-medium",
-                "text-gray-500", "dark:text-slate-200"
+                "text-neutral-500", "dark:text-neutral-200"
             )
-        }) { Text(label) }
+        }) {
+            StatIcon(dotColor)
+            Text(label)
+        }
         P ({
             classes(
                 "mt-1",
@@ -28,16 +36,14 @@ fun StatItem(dotColor: String, count: Int, label: String) {
         }) {
             Span(attrs = {
                 classes(
-                    "text-2xl",
+                    "text-xl",
                     "font-normal",
                     "tracking-tight",
-                    "text-gray-900", "dark:text-slate-200"
+                    "text-neutral-900", "dark:text-neutral-200"
                 )
             }) {
                 Text( "$count")
             }
-
-            StatIcon(dotColor)
         }
     }
 }

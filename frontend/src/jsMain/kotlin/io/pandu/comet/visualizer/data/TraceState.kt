@@ -122,6 +122,41 @@ class TraceState {
         return traces.values.filter { it.parentId == null || !traces.containsKey(it.parentId) }
     }
 
+    fun getOperationStats(): Map<String, LatencyStats> {
+        return durationsByOperation.mapValues { (_, durations) ->
+            if (durations.isEmpty()) {
+                LatencyStats()
+            } else {
+                val sorted = durations.sorted()
+                LatencyStats(
+                    min = sorted.first(),
+                    max = sorted.last(),
+                    mean = sorted.average(),
+                    p50 = percentile(sorted, 50.0),
+                    p90 = percentile(sorted, 90.0),
+                    p99 = percentile(sorted, 99.0),
+                    count = sorted.size
+                )
+            }
+        }
+    }
+
+    fun getOverallLatencyStats(): LatencyStats {
+        if (allDurations.isEmpty()) {
+            return LatencyStats()
+        }
+        val sorted = allDurations.sorted()
+        return LatencyStats(
+            min = sorted.first(),
+            max = sorted.last(),
+            mean = sorted.average(),
+            p50 = percentile(sorted, 50.0),
+            p90 = percentile(sorted, 90.0),
+            p99 = percentile(sorted, 99.0),
+            count = sorted.size
+        )
+    }
+
     private fun trackDuration(operation: String, durationMs: Double) {
         // Add to all durations
         allDurations.add(durationMs)
