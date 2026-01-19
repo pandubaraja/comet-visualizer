@@ -10,6 +10,9 @@ Real-time trace visualization for Kotlin coroutines. A web-based UI that display
 - **Real-time Updates**: Live streaming via Server-Sent Events (SSE)
 - **Dark/Light Mode**: Toggle between themes
 
+## Preview
+https://github.com/user-attachments/assets/9d9fb746-a588-4b4c-b1ab-81018c221a96
+
 ## Project Structure
 
 ```
