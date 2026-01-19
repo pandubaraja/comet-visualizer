@@ -9,8 +9,7 @@ fun StatsBar(stats: TraceStats) {
     Div({
         classes(
             "mt-4",
-            "grid",
-            "grid-cols-5",
+            "flex", "flex-row",
             "gap-3"
         )
     }) {

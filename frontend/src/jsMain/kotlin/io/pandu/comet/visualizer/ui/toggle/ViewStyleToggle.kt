@@ -21,8 +21,9 @@ fun ViewStyleToggle(current: ViewStyle, onChange: (ViewStyle) -> Unit) {
             classes(
                 "flex", "items-center", "gap-2",
                 "px-3", "py-2.5",
-                "bg-stone-300/60", "dark:bg-neutral-700",
-                "rounded-lg", "cursor-pointer",
+                "rounded-full", "cursor-pointer",
+                "ring-1", "ring-stone-200", "dark:ring-stone-600",
+                "bg-white", "dark:bg-neutral-700",
                 "text-neutral-700", "dark:text-neutral-200",
                 "text-sm", "font-medium",
                 "hover:bg-neutral-300", "dark:hover:bg-white/[0.08]",

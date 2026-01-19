@@ -30,7 +30,7 @@ object CometStyles : StyleSheet() {
                 "background-image",
                 """url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M24 0v24M0 24h24' stroke='%23c7cbd1' stroke-width='1'/%3E%3C/svg%3E")"""
             )
-            property("background-size", "24px 24px")
+            property("background-size", "20px 20px")
         }
 
         // Tree graph grid pattern (dark mode)
@@ -39,7 +39,7 @@ object CometStyles : StyleSheet() {
                 "background-image",
                 """url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M24 0v24M0 24h24' stroke='%23333333' stroke-width='1'/%3E%3C/svg%3E")"""
             )
-            property("background-size", "24px 24px")
+            property("background-size", "20px 20px")
         }
     }
 }

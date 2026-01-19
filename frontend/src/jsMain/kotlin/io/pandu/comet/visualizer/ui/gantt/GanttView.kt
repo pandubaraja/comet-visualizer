@@ -11,7 +11,6 @@ import io.pandu.comet.visualizer.data.TraceState
 import io.pandu.comet.visualizer.ui.EmptyView
 import kotlinx.browser.document
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
@@ -106,6 +105,19 @@ fun GanttView(
                 }
             }
         }) {
+            // Zoom indicator
+            Div({
+                classes(
+                    "fixed", "bottom-4", "right-4", "z-50",
+                    "px-3", "py-1.5", "rounded-full",
+                    "bg-black/70", "dark:bg-neutral-700",
+                    "text-white", "text-xs", "font-mono",
+                    "pointer-events-none"
+                )
+            }) {
+                Text("Pinch or Ctrl+Scroll")
+            }
+
             // Content - Timeline only (labels are in sidebar)
             Div({
                 classes("flex-1", "overflow-auto")
@@ -133,11 +145,11 @@ fun GanttView(
                                 "absolute", "top-0", "bottom-0",
                                 "border-l", "border-neutral-300", "dark:border-white/10",
                                 "px-3", "py-2",
-                                "text-xs", "font-normal", "text-neutral-500"
+                                "text-xs", "font-normal", "text-neutral-500", "dark:text-neutral-100"
                             )
                             style { property("left", "${t * scale}px") }
                         }) {
-                            Text("${t.toInt()} ms")
+                            Text("${t.toInt()}ms")
                         }
                         t += step
                     }

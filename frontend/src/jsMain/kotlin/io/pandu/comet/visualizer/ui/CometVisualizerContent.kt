@@ -32,7 +32,7 @@ fun CometVisualizerContent(
     badge: String? = null
 ) {
     var currentViewStyle by remember { mutableStateOf(ViewStyle.GANTT) }
-    var isDarkTheme by remember { mutableStateOf(false) }
+    var isDarkTheme by remember { mutableStateOf(true) }
     var selectedNode by remember { mutableStateOf<TraceNode?>(null) }
 
     // Toggle dark class on body
@@ -56,10 +56,10 @@ fun CometVisualizerContent(
         // Header
         Header({
             classes(
-                "pb-6", "px-6", "pt-6", "flex-shrink-0",
-                "bg-zinc-100", "dark:bg-neutral-800",
+                "pb-6", "px-4", "pt-6", "flex-shrink-0",
+                "bg-gray-50", "dark:bg-neutral-800",
                 "flex", "justify-between", "items-start",
-                "shadow-md", "dark:shadow-neutral-950/50", "z-20"
+                "shadow-sm", "dark:shadow-neutral-950/50", "z-20"
             )
         }) {
             Div({}) {
@@ -102,9 +102,9 @@ fun CometVisualizerContent(
             Div({
                 classes(
                     "w-64", "flex-shrink-0",
-                    "bg-zinc-100", "dark:bg-neutral-800",
+                    "bg-gray-50", "dark:bg-neutral-800",
                     "overflow-y-auto",
-                    "shadow-md", "dark:shadow-neutral-950/50", "z-20"
+                    "shadow-sm", "dark:shadow-neutral-950/50", "z-20"
                 )
             }) {
                 TreeView(

@@ -26,23 +26,23 @@ fun TreeView(
         // Search input
         Div({
             classes(
-                "px-6"
+                "px-4", "mt-1"
             )
         }) {
             Div({
                 classes(
                     "flex", "items-center", "gap-2",
                     "px-3", "py-3",
-                    "bg-white", "dark:bg-white/5",
-                    "shadow-md",
+                    "ring-1", "ring-stone-200", "dark:ring-stone-600",
+                    "bg-white", "dark:bg-neutral-700",
                     "rounded-full", "text-sm"
                 )
             }) {
                 TextInput(searchQuery) {
                     classes(
                         "flex-1", "bg-transparent", "outline-none",
-                        "text-slate-700", "dark:text-slate-200",
-                        "placeholder:text-slate-400"
+                        "text-neutral-700", "dark:text-neutral-200",
+                        "placeholder:text-neutral-400"
                     )
                     placeholder("Search Operation")
                     onInput { event ->

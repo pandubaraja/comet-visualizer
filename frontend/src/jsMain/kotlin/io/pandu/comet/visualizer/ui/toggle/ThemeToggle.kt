@@ -12,7 +12,8 @@ fun ThemeToggle(isDark: Boolean, onChange: (Boolean) -> Unit) {
             "relative", "z-0",
             "inline-grid", "grid-cols-2", "gap-2",
             "rounded-full",
-            "bg-stone-300/60", "dark:bg-neutral-700",
+            "ring-1", "ring-stone-200", "dark:ring-stone-600",
+            "bg-white", "dark:bg-neutral-700",
             "p-1.5",
             "text-neutral-950", "dark:text-white"
         )
@@ -22,7 +23,7 @@ fun ThemeToggle(isDark: Boolean, onChange: (Boolean) -> Unit) {
             "relative",
             "rounded-full",
             "p-0.5",
-            "bg-white", "ring-1", "ring-neutral-950/20",
+            "bg-stone-300", "ring-1", "ring-neutral-900/20",
             "text-neutral-950",
             "dark:bg-neutral-100", "dark:text-neutral-950", "dark:ring-transparent"
         )

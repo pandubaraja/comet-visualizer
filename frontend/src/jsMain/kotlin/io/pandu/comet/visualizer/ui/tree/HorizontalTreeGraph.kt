@@ -201,11 +201,12 @@ fun HorizontalTreeGraph(
             classes(
                 "fixed", "bottom-4", "right-4", "z-50",
                 "px-3", "py-1.5", "rounded-full",
-                "bg-black/70", "text-white", "text-xs", "font-mono",
+                "bg-black/70", "dark:bg-neutral-700",
+                "text-white", "text-xs", "font-mono",
                 "pointer-events-none"
             )
         }) {
-            Text("${(zoom * 100).roundToInt()}% (Pinch or Ctrl+Scroll)")
+            Text("Pinch or Ctrl+Scroll")
         }
 
         Div({
@@ -300,10 +301,10 @@ private fun TreeGraphNode(
     }
 
     val (bgLight, bgDark) = when (status) {
-        TraceStatus.RUNNING -> "bg-blue-50" to "dark:bg-blue-900/20"
+        TraceStatus.RUNNING -> "bg-blue-50" to "dark:bg-blue-900"
         TraceStatus.COMPLETED -> "bg-white" to "dark:bg-neutral-800"
         TraceStatus.FAILED -> "bg-red-50" to "dark:bg-red-900/20"
-        TraceStatus.CANCELLED -> "bg-amber-50" to "dark:bg-amber-900/20"
+        TraceStatus.CANCELLED -> "bg-amber-50" to "dark:bg-amber-900"
     }
 
     Div({
