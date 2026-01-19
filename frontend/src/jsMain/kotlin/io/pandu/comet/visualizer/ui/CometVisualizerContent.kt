@@ -31,8 +31,8 @@ fun CometVisualizerContent(
     traceState: TraceState,
     badge: String? = null
 ) {
-    var currentViewStyle by remember { mutableStateOf(ViewStyle.GANTT) }
-    var isDarkTheme by remember { mutableStateOf(true) }
+    var currentViewStyle by remember { mutableStateOf(ViewStyle.TREE) }
+    var isDarkTheme by remember { mutableStateOf(false) }
     var selectedNode by remember { mutableStateOf<TraceNode?>(null) }
 
     // Toggle dark class on body
