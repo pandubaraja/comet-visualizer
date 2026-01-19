@@ -2,8 +2,6 @@
 
 Real-time trace visualization for Kotlin coroutines. A web-based UI that displays coroutine execution traces with tree and Gantt chart views.
 
-![Comet Visualizer](docs/images/comet.png)
-
 ## Features
 
 - **Tree View**: Hierarchical display of coroutine traces with parent-child relationships
@@ -23,35 +21,74 @@ comet-visualizer/
 
 ## Integration
 
-Add to your project:
+Add both dependencies to your project:
 
 ```kotlin
 dependencies {
+    implementation("io.pandu.comet:comet:0.1.0")
     implementation("io.pandu.comet:comet-visualizer:0.1.0")
 }
 ```
 
-Usage:
+### Using with Comet
+
+The easiest way to use the visualizer is with `VisualizerJsonExporter` from the Comet library:
+
+```kotlin
+import io.pandu.Comet
+import io.pandu.comet.visualizer.TraceServer
+import io.pandu.core.telemetry.exporters.VisualizerJsonExporter
+
+fun main() = runBlocking {
+    // Start the visualizer server
+    val server = TraceServer(port = 8080)
+    server.start()
+
+    // Configure Comet with the visualizer exporter
+    val comet = Comet.create {
+        exporter(VisualizerJsonExporter(server::sendEvent))
+        includeStackTrace(true)  // Enables source file/line display
+    }
+    comet.start()
+
+    // Use comet.traced() to instrument your coroutines
+    launch(comet.traced("my-operation")) {
+        // Your coroutine code here
+        launch(CoroutineName("child-task")) {
+            delay(100)
+        }
+    }
+
+    // Open http://localhost:8080 in your browser
+
+    // Cleanup
+    comet.shutdown()
+    server.stop()
+}
+```
+
+### Manual Integration
+
+If you're not using the Comet library, you can send trace events directly:
 
 ```kotlin
 val server = TraceServer(port = 8080)
 server.start()
 
-// Send trace events
+// Send trace events as JSON
 val event = TraceEvent(
-    type = "started",
+    type = "started",       // "started", "completed", "failed", or "cancelled"
     id = "span-id",
     parentId = null,
     operation = "my-operation",
     status = "running",
     dispatcher = "Dispatchers.Default",
     timestamp = System.nanoTime(),
-    sourceFile = "MyFile.kt",    // Optional: source file name
-    lineNumber = 42              // Optional: line number
+    sourceFile = "MyFile.kt",
+    lineNumber = 42
 )
 server.sendEvent(Json.encodeToString(event))
 
-// When done
 server.stop()
 ```
 
