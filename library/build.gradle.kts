@@ -52,10 +52,7 @@ tasks.register<JavaExec>("run") {
 
 mavenPublishing {
     publishToMavenCentral()
-
-    if (System.getenv("CI") != null) {
-        signAllPublications()
-    }
+    signAllPublications()
 
     coordinates("io.github.pandubaraja", "comet-visualizer", version.toString())
 
