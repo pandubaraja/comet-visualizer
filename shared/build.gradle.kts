@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
-    `maven-publish`
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 group = "io.pandu.comet"
@@ -24,8 +24,38 @@ kotlin {
     }
 }
 
-publishing {
-    publications.withType<MavenPublication> {
-        artifactId = "comet-visualizer-shared" + artifactId.removePrefix("shared")
+mavenPublishing {
+    publishToMavenCentral()
+
+    if (System.getenv("CI") != null) {
+        signAllPublications()
+    }
+
+    coordinates("io.pandu.comet", "comet-visualizer-shared", version.toString())
+
+    pom {
+        name = "Comet Visualizer Shared"
+        description = "Shared models and utilities for Comet Visualizer (JVM + JS)."
+        inceptionYear = "2025"
+        url = "https://github.com/pandubaraja/comet-visualizer/"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "repo"
+            }
+        }
+        developers {
+            developer {
+                id = "pandubaraja"
+                name = "Pandu Baraja"
+                url = "https://github.com/pandubaraja"
+            }
+        }
+        scm {
+            url = "https://github.com/pandubaraja/comet-visualizer"
+            connection = "scm:git:git://github.com/pandubaraja/comet-visualizer.git"
+            developerConnection = "scm:git:ssh://git@github.com/pandubaraja/comet-visualizer.git"
+        }
     }
 }
