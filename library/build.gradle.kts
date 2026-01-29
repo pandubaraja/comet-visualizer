@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.pandubaraja"
-version = "0.1.0"
+version = "0.2.0"
 
 dependencies {
     // Use 'api' so TraceEvent is exposed transitively to consumers
@@ -60,8 +60,8 @@ mavenPublishing {
 
     pom {
         name = "Comet Visualizer"
-        description = "Real-time web UI for Comet coroutine telemetry — trace visualization, Gantt charts, and performance views."
-        inceptionYear = "2025"
+        description = "Real-time web UI for visualizing Coroutine traces via structured Tree Views, concurrent Gantt charts, and execution metrics."
+        inceptionYear = "2026"
         url = "https://github.com/pandubaraja/comet-visualizer/"
         licenses {
             license {
