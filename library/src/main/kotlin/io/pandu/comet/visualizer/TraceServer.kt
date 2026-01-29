@@ -1,10 +1,19 @@
 package io.pandu.comet.visualizer
 
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpServer
-import java.io.InputStream
-import java.net.InetSocketAddress
-import java.util.concurrent.CopyOnWriteArrayList
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.cio.CIO
+import io.ktor.server.cio.CIOApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.response.header
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
+import io.ktor.server.response.respondTextWriter
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
  * HTTP server for real-time trace visualization.
@@ -39,60 +48,55 @@ class TraceServer(
     private val port: Int = 8080,
     private val sseOnly: Boolean = false
 ) {
-    private val clients = CopyOnWriteArrayList<HttpExchange>()
-    private lateinit var server: HttpServer
+    private val eventFlow = MutableSharedFlow<String>(extraBufferCapacity = 256)
+    private lateinit var server: EmbeddedServer<CIOApplicationEngine, CIOApplicationEngine.Configuration>
 
     /**
      * Starts the HTTP server.
      */
     fun start() {
-        server = HttpServer.create(InetSocketAddress(port), 0)
-
-        if (!sseOnly) {
-            // Serve index.html
-            server.createContext("/") { exchange ->
-                if (exchange.requestURI.path == "/" || exchange.requestURI.path == "/index.html") {
-                    serveResource(exchange, "/static/index.html", "text/html")
-                } else {
-                    exchange.sendResponseHeaders(404, -1)
+        server = embeddedServer(CIO, port = port) {
+            routing {
+                if (!sseOnly) {
+                    get("/") {
+                        serveResource(call, "/static/index.html", ContentType.Text.Html)
+                    }
+                    get("/index.html") {
+                        serveResource(call, "/static/index.html", ContentType.Text.Html)
+                    }
+                    get("/comet-visualizer.js") {
+                        serveResource(call, "/static/comet-visualizer.js", ContentType.Application.JavaScript)
+                    }
+                    get("/comet-visualizer.js.map") {
+                        serveResource(call, "/static/comet-visualizer.js.map", ContentType.Application.Json)
+                    }
+                    get("/icons/{path...}") {
+                        val path = call.parameters.getAll("path")?.joinToString("/") ?: ""
+                        val contentType = when {
+                            path.endsWith(".png") -> ContentType.Image.PNG
+                            path.endsWith(".ico") -> ContentType("image", "x-icon")
+                            path.endsWith(".svg") -> ContentType.Image.SVG
+                            else -> ContentType.Application.OctetStream
+                        }
+                        serveResource(call, "/static/icons/$path", contentType)
+                    }
                 }
-            }
 
-            // Serve JS bundle
-            server.createContext("/comet-visualizer.js") { exchange ->
-                serveResource(exchange, "/static/comet-visualizer.js", "application/javascript")
-            }
-
-            // Serve source maps if available
-            server.createContext("/comet-visualizer.js.map") { exchange ->
-                serveResource(exchange, "/static/comet-visualizer.js.map", "application/json")
-            }
-
-            // Serve icons
-            server.createContext("/icons/") { exchange ->
-                val path = exchange.requestURI.path
-                val contentType = when {
-                    path.endsWith(".png") -> "image/png"
-                    path.endsWith(".ico") -> "image/x-icon"
-                    path.endsWith(".svg") -> "image/svg+xml"
-                    else -> "application/octet-stream"
+                get("/events") {
+                    call.response.header(HttpHeaders.CacheControl, "no-cache")
+                    call.response.header(HttpHeaders.Connection, "keep-alive")
+                    call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
+                    call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+                        eventFlow.collect { event ->
+                            write("data: $event\n\n")
+                            flush()
+                        }
+                    }
                 }
-                serveResource(exchange, "/static$path", contentType)
             }
         }
 
-        // SSE endpoint
-        server.createContext("/events") { exchange ->
-            exchange.responseHeaders.add("Content-Type", "text/event-stream")
-            exchange.responseHeaders.add("Cache-Control", "no-cache")
-            exchange.responseHeaders.add("Connection", "keep-alive")
-            exchange.responseHeaders.add("Access-Control-Allow-Origin", "*")
-            exchange.sendResponseHeaders(200, 0)
-            clients.add(exchange)
-        }
-
-        server.executor = null
-        server.start()
+        server.start(wait = false)
         if (sseOnly) {
             println("Comet TraceServer (SSE only) started at http://localhost:$port/events")
         } else {
@@ -100,15 +104,13 @@ class TraceServer(
         }
     }
 
-    private fun serveResource(exchange: HttpExchange, resourcePath: String, contentType: String) {
-        val inputStream: InputStream? = javaClass.getResourceAsStream(resourcePath)
+    private suspend fun serveResource(call: io.ktor.server.application.ApplicationCall, resourcePath: String, contentType: ContentType) {
+        val inputStream = javaClass.getResourceAsStream(resourcePath)
         if (inputStream != null) {
-            val response = inputStream.readBytes()
-            exchange.responseHeaders.add("Content-Type", contentType)
-            exchange.sendResponseHeaders(200, response.size.toLong())
-            exchange.responseBody.use { it.write(response) }
+            val bytes = inputStream.readBytes()
+            call.respondBytes(bytes, contentType)
         } else {
-            exchange.sendResponseHeaders(404, -1)
+            call.respond(HttpStatusCode.NotFound)
         }
     }
 
@@ -117,29 +119,14 @@ class TraceServer(
      * @param event JSON string of the TraceEvent
      */
     fun sendEvent(event: String) {
-        val data = "data: $event\n\n"
-        val deadClients = mutableListOf<HttpExchange>()
-
-        clients.forEach { client ->
-            try {
-                client.responseBody.write(data.toByteArray())
-                client.responseBody.flush()
-            } catch (e: Exception) {
-                deadClients.add(client)
-            }
-        }
-
-        clients.removeAll(deadClients)
+        eventFlow.tryEmit(event)
     }
 
     /**
      * Stops the HTTP server and closes all client connections.
      */
     fun stop() {
-        clients.forEach {
-            try { it.responseBody.close() } catch (_: Exception) {}
-        }
-        server.stop(0)
+        server.stop(0, 0)
         println("Comet TraceServer stopped")
     }
 }

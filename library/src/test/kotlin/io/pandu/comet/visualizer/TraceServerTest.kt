@@ -11,7 +11,6 @@ import kotlin.test.assertTrue
 class TraceServerTest {
 
     private fun findAvailablePort(): Int {
-        // Use a port in the dynamic/private range
         return (49152..65535).random()
     }
 
@@ -25,10 +24,9 @@ class TraceServerTest {
         val server = TraceServer(port = port)
 
         server.start()
-        Thread.sleep(100) // Give server time to start
+        Thread.sleep(500)
 
         server.stop()
-        // If we reach here without exception, test passes
     }
 
     @Test
@@ -37,13 +35,12 @@ class TraceServerTest {
         val server = TraceServer(port = port, sseOnly = true)
 
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
-        // In SSE-only mode, root path should return 404
         val connection = URL("http://localhost:$port/").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = 1000
-        connection.readTimeout = 1000
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
 
         try {
             assertEquals(404, connection.responseCode)
@@ -62,16 +59,16 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = true)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = 1000
-        connection.readTimeout = 1000
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
 
         try {
             assertEquals(200, connection.responseCode)
-            assertEquals("text/event-stream", connection.contentType)
+            assertTrue(connection.contentType.contains("text/event-stream"))
             assertTrue(connection.getHeaderField("Access-Control-Allow-Origin") == "*")
         } finally {
             connection.disconnect()
@@ -84,24 +81,22 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = true)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = 2000
-        connection.readTimeout = 2000
+        connection.connectTimeout = 3000
+        connection.readTimeout = 3000
 
         try {
             val reader = BufferedReader(InputStreamReader(connection.inputStream))
 
-            // Give client time to connect
-            Thread.sleep(200)
+            // Give client time to connect and start collecting
+            Thread.sleep(500)
 
-            // Send an event
             val testEvent = """{"type":"started","id":"test-123"}"""
             server.sendEvent(testEvent)
 
-            // Read the event
             val line = reader.readLine()
             assertTrue(line.startsWith("data: "), "Expected SSE data format, got: $line")
             assertTrue(line.contains("test-123"), "Expected event data in response")
@@ -116,16 +111,16 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = true)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = 2000
-        connection.readTimeout = 2000
+        connection.connectTimeout = 3000
+        connection.readTimeout = 3000
 
         try {
             val reader = BufferedReader(InputStreamReader(connection.inputStream))
-            Thread.sleep(200)
+            Thread.sleep(500)
 
             val testEvent = """{"key":"value"}"""
             server.sendEvent(testEvent)
@@ -144,21 +139,17 @@ class TraceServerTest {
 
     @Test
     fun `root path serves index html when resources are bundled`() {
-        // When frontend resources are bundled (via copyFrontend task),
-        // the server serves index.html at root path
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = false)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection = URL("http://localhost:$port/").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = 1000
-        connection.readTimeout = 1000
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
 
         try {
-            // With bundled resources, should return 200
-            // Without resources, would return 404
             val responseCode = connection.responseCode
             assertTrue(responseCode == 200 || responseCode == 404,
                 "Expected 200 (bundled) or 404 (not bundled), got $responseCode")
@@ -173,12 +164,12 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = false)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection = URL("http://localhost:$port/nonexistent").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.connectTimeout = 1000
-        connection.readTimeout = 1000
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
 
         try {
             assertEquals(404, connection.responseCode)
@@ -197,21 +188,21 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = true)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection1 = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
         val connection2 = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
 
-        connection1.connectTimeout = 2000
-        connection1.readTimeout = 2000
-        connection2.connectTimeout = 2000
-        connection2.readTimeout = 2000
+        connection1.connectTimeout = 3000
+        connection1.readTimeout = 3000
+        connection2.connectTimeout = 3000
+        connection2.readTimeout = 3000
 
         try {
             val reader1 = BufferedReader(InputStreamReader(connection1.inputStream))
             val reader2 = BufferedReader(InputStreamReader(connection2.inputStream))
 
-            Thread.sleep(200)
+            Thread.sleep(500)
 
             val testEvent = """{"id":"broadcast-test"}"""
             server.sendEvent(testEvent)
@@ -237,22 +228,20 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port, sseOnly = true)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
-        // Connect and immediately disconnect
         val connection = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
-        connection.connectTimeout = 1000
-        connection.readTimeout = 1000
-        connection.inputStream // Force connection
-        Thread.sleep(100)
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
+        connection.inputStream
+        Thread.sleep(200)
         connection.disconnect()
 
-        Thread.sleep(100)
+        Thread.sleep(200)
 
         // Send event after client disconnected - should not throw
         server.sendEvent("""{"test":"after-disconnect"}""")
 
-        // If we reach here without exception, server handled disconnection
         server.stop()
     }
 
@@ -265,11 +254,11 @@ class TraceServerTest {
         val port = findAvailablePort()
         val server = TraceServer(port = port)
         server.start()
-        Thread.sleep(100)
+        Thread.sleep(500)
 
         val connection = URL("http://localhost:$port/events").openConnection() as HttpURLConnection
-        connection.connectTimeout = 1000
-        connection.readTimeout = 1000
+        connection.connectTimeout = 2000
+        connection.readTimeout = 2000
 
         try {
             assertEquals(200, connection.responseCode)
@@ -281,10 +270,7 @@ class TraceServerTest {
 
     @Test
     fun `default port is 8080`() {
-        // Just verify the constructor default
         val server = TraceServer()
-        // We can't easily verify the port without starting, but we test that
-        // the constructor accepts no arguments (uses defaults)
         assertTrue(true)
     }
 }

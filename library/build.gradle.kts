@@ -13,6 +13,8 @@ version = "0.1.0"
 dependencies {
     // Use 'api' so TraceEvent is exposed transitively to consumers
     api(project(":shared"))
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cio)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.kotlin.test)
