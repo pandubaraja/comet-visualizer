@@ -60,7 +60,7 @@ mavenPublishing {
 
     pom {
         name = "Comet Visualizer"
-        description = "Real-time web UI for visualizing Coroutine traces via structured Tree Views, concurrent Gantt charts, and execution metrics."
+        description = "Comet Visualizer is a real-time web UI for visualizing Kotlin coroutine traces produced by Comet (Coroutine Telemetry). It presents structured concurrency as hierarchical tree views, concurrent Gantt charts, and execution metrics, making coroutine behavior easier to understand and analyze."
         inceptionYear = "2026"
         url = "https://github.com/pandubaraja/comet-visualizer/"
         licenses {
@@ -83,4 +83,5 @@ mavenPublishing {
             developerConnection = "scm:git:ssh://git@github.com/pandubaraja/comet-visualizer.git"
         }
     }
+
 }
