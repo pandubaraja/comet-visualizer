@@ -1,7 +1,7 @@
 [versions]
-kotlin = "2.1.20"
+kotlin = "2.2.20"
 compose = "1.7.1"
-kotlinxCoroutineVersion = "1.9.0"
+kotlinxCoroutineVersion = "1.10.2"
 kotlinxSerializationJson = "1.7.3"
 vanniktechMavenPublish = "0.35.0"
 
