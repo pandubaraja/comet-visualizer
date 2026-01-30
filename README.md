@@ -1,11 +1,11 @@
 # Comet Visualizer
 
-Real-time trace visualization for Kotlin coroutines. A web-based UI that displays coroutine execution traces with tree and Gantt chart views.
+Comet Visualizer is a real-time web UI for visualizing Kotlin coroutine traces produced by Comet (Coroutine Telemetry). It presents structured concurrency as hierarchical tree views, concurrent Gantt charts, and execution metrics, making coroutine behavior easier to understand and analyze.
 
 ## Features
 
 - **Tree View**: Hierarchical display of coroutine traces with parent-child relationships
-- **Gantt Chart**: Timeline visualization with mouse-centered zoom (Ctrl+Scroll)
+- **Gantt Chart**: Timeline visualization
 - **Source Location**: Display file and line number where coroutines were created
 - **Real-time Updates**: Live streaming via Server-Sent Events (SSE)
 - **Dark/Light Mode**: Toggle between themes
@@ -17,9 +17,9 @@ https://github.com/user-attachments/assets/9d9fb746-a588-4b4c-b1ab-81018c221a96
 
 ```
 comet-visualizer/
-├── shared/      # Kotlin Multiplatform data models (JVM + JS)
+├── shared/      # Kotlin Multiplatform data models
 ├── frontend/    # Kotlin/JS + Compose for Web UI
-└── library/     # JVM server library (TraceServer + bundled frontend)
+└── library/     # Server library (TraceServer + bundled frontend)
 ```
 
 ## Integration
@@ -94,6 +94,10 @@ server.sendEvent(Json.encodeToString(event))
 
 server.stop()
 ```
+
+## Demo App
+
+See [comet-demo](https://github.com/pandubaraja/comet-demo) for a full KMP sample app (Android + iOS) that integrates both Comet and comet-visualizer with real API calls and various coroutine tracing patterns.
 
 ## Controls
 
