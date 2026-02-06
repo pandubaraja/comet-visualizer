@@ -11,8 +11,10 @@ Comet Visualizer is a real-time web UI for visualizing Kotlin coroutine traces p
 - **Real-time Updates**: Live streaming via Server-Sent Events (SSE)
 - **Dark/Light Mode**: Toggle between themes
 
-## Preview
-https://github.com/user-attachments/assets/9d9fb746-a588-4b4c-b1ab-81018c221a96
+## Demo
+https://github.com/user-attachments/assets/900caecc-4b20-4dfb-ba57-ac44d622b9e3
+
+See [comet-demo](https://github.com/pandubaraja/comet-demo) for a full KMP sample app (Android + iOS) demonstrating Comet and comet-visualizer integration with real API calls and some coroutine patterns.
 
 ## Project Structure
 
@@ -33,10 +35,6 @@ dependencies {
     implementation("io.github.pandubaraja:comet-visualizer:0.3.0")
 }
 ```
-
-### Using with Comet
-
-The easiest way to use the visualizer is with `VisualizerJsonExporter` from the Comet library:
 
 ```kotlin
 import io.pandu.Comet
@@ -76,49 +74,6 @@ fun main() = runBlocking {
 > adb forward tcp:8080 tcp:8080
 > ```
 > Then open `http://localhost:8080` in your browser.
-
-### Manual Integration
-
-If you're not using the Comet library, you can send trace events directly:
-
-```kotlin
-val server = TraceServer(port = 8080)
-server.start()
-
-// Send trace events as JSON
-val event = TraceEvent(
-    type = "started",       // "started", "completed", "failed", or "cancelled"
-    id = "span-id",
-    parentId = null,
-    operation = "my-operation",
-    status = "running",
-    dispatcher = "Dispatchers.Default",
-    timestamp = System.nanoTime(),
-    sourceFile = "MyFile.kt",
-    lineNumber = 42
-)
-server.sendEvent(Json.encodeToString(event))
-
-server.stop()
-```
-
-## Demo App
-
-See [comet-demo](https://github.com/pandubaraja/comet-demo) for a full KMP sample app (Android + iOS) that integrates both Comet and comet-visualizer with real API calls and various coroutine tracing patterns.
-
-## Controls
-
-- **Tree/Gantt/Performance Toggle**: Switch between visualization modes
-- **Theme Toggle**: Switch between dark and light mode
-- **Gantt Zoom**: Ctrl + Scroll (or Cmd + Scroll on Mac) - zooms centered on mouse pointer
-- **Node Details**: Click on any node to view details including source location
-
-## Tech Stack
-
-- Kotlin Multiplatform
-- Compose for Web
-- Tailwind CSS
-- Server-Sent Events (SSE)
 
 ## License
 
