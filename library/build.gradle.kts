@@ -7,8 +7,8 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
-group = "io.github.pandubaraja"
-version = "0.2.0"
+group = "io.github.pandubaraja.comet-visualizer"
+version = "0.3.0"
 
 dependencies {
     // Use 'api' so TraceEvent is exposed transitively to consumers

@@ -7,6 +7,7 @@ Comet Visualizer is a real-time web UI for visualizing Kotlin coroutine traces p
 - **Tree View**: Hierarchical display of coroutine traces with parent-child relationships
 - **Gantt Chart**: Timeline visualization
 - **Source Location**: Display file and line number where coroutines were created
+- **Package Names**: Shows the originating package path alongside operation names in tree nodes, Gantt bars, and graph view
 - **Real-time Updates**: Live streaming via Server-Sent Events (SSE)
 - **Dark/Light Mode**: Toggle between themes
 
@@ -28,8 +29,8 @@ Add both dependencies to your project:
 
 ```kotlin
 dependencies {
-    implementation("io.github.pandubaraja:comet:0.2.0")
-    implementation("io.github.pandubaraja:comet-visualizer:0.2.0")
+    implementation("io.github.pandubaraja:comet:0.3.0")
+    implementation("io.github.pandubaraja:comet-visualizer:0.3.0")
 }
 ```
 

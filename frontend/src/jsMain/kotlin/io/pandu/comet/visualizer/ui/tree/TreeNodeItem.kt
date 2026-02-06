@@ -111,6 +111,21 @@ fun TreeNodeItem(
                 }
             }
 
+            // Package name label
+            if (node.sourceFile.isNotEmpty()) {
+                val packagePath = node.sourceFile.substringBeforeLast('/')
+                if (packagePath.isNotEmpty() && packagePath != node.sourceFile) {
+                    Span({
+                        classes(
+                            "text-xs", "text-slate-500", "dark:text-slate-500",
+                            "truncate", "ml-1"
+                        )
+                    }) {
+                        Text(packagePath)
+                    }
+                }
+            }
+
             // Unstructured warning badge
             if (node.isUnstructured) {
                 Span({
