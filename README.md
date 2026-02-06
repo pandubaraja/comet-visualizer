@@ -71,6 +71,12 @@ fun main() = runBlocking {
 }
 ```
 
+> **Note:** If running on an Android emulator or device, forward the port first:
+> ```bash
+> adb forward tcp:8080 tcp:8080
+> ```
+> Then open `http://localhost:8080` in your browser.
+
 ### Manual Integration
 
 If you're not using the Comet library, you can send trace events directly:
