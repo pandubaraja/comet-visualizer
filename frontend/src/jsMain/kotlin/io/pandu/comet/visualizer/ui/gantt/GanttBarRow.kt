@@ -88,6 +88,20 @@ fun GanttBarRow(
             }) {
                 Text(if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation)
             }
+            if (barWidth > 120 && node.sourceFile.isNotEmpty()) {
+                val packagePath = node.sourceFile.substringBeforeLast('/')
+                if (packagePath.isNotEmpty() && packagePath != node.sourceFile) {
+                    Span({
+                        classes(
+                            "text-[0.6rem]", "text-white/70",
+                            "whitespace-nowrap", "overflow-hidden", "text-ellipsis",
+                            "ml-1"
+                        )
+                    }) {
+                        Text(packagePath)
+                    }
+                }
+            }
         }
     }
 }

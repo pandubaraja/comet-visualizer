@@ -18,7 +18,7 @@ import org.jetbrains.compose.web.dom.Text
 import kotlin.math.roundToInt
 
 private const val NODE_WIDTH = 180
-private const val NODE_HEIGHT = 60
+private const val NODE_HEIGHT = 72
 private const val HORIZONTAL_GAP = 100
 private const val VERTICAL_GAP = 20
 
@@ -328,7 +328,7 @@ private fun TreeGraphNode(
             property("left", "${x}px")
             property("top", "${y}px")
             property("width", "${NODE_WIDTH}px")
-            property("height", "${NODE_HEIGHT}px")
+            property("min-height", "${NODE_HEIGHT}px")
             property("z-index", if (isSelected) "20" else "10")
         }
         if (status == TraceStatus.RUNNING) {
@@ -347,6 +347,21 @@ private fun TreeGraphNode(
                 )
             }) {
                 Text(if (node.operation.isEmpty() || node.operation == "coroutine") node.id else node.operation)
+            }
+        }
+
+        // Package name
+        if (node.sourceFile.isNotEmpty()) {
+            val packagePath = node.sourceFile.substringBeforeLast('/')
+            if (packagePath.isNotEmpty() && packagePath != node.sourceFile) {
+                Div({
+                    classes(
+                        "text-[0.6rem]", "text-slate-500", "dark:text-slate-400",
+                        "truncate", "px-0.5"
+                    )
+                }) {
+                    Text(packagePath)
+                }
             }
         }
 
